@@ -1,0 +1,22 @@
+{
+  "name": "ujet-sf-call-tool",
+  "private": true,
+  "version": "1.0.0",
+  "description": "UJET Salesforce Call Tool",
+  "scripts": {
+    "lint": "eslint force-app/main/default/lwc/**/*.js",
+    "lint:fix": "eslint force-app/main/default/lwc/**/*.js --fix",
+    "lint:apex": "sf scanner run --target force-app/main/default/classes --pmdconfig pmd-ruleset.xml --format table",
+    "test:unit": "sfdx-lwc-jest",
+    "test:unit:watch": "sfdx-lwc-jest --watch",
+    "test:unit:coverage": "sfdx-lwc-jest --coverage"
+  },
+  "devDependencies": {
+    "@lwc/eslint-plugin-lwc": "^2.0.0",
+    "@salesforce/eslint-config-lwc": "^3.7.0",
+    "@salesforce/sfdx-lwc-jest": "^5.1.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jest": "^28.8.0"
+  }
+}

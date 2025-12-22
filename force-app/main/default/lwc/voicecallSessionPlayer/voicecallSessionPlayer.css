@@ -1,0 +1,52 @@
+/* Main container styling */
+.calls-container {
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/* Call session content */
+.call-session-content {
+    padding: 0.5rem;
+}
+
+/* Metadata grid styling */
+.call-metadata {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.metadata-label {
+    color: #64748b;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.metadata-value {
+    color: #1e293b;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+/* Illustration styling for empty state */
+.slds-illustration {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    color: #64748b;
+}
+
+.slds-illustration h3 {
+    color: #334155;
+}
+
+/* Override accordion section header for better visual hierarchy */
+:host lightning-accordion-section {
+    --slds-c-accordion-section-header-background-color: #f8fafc;
+}
+

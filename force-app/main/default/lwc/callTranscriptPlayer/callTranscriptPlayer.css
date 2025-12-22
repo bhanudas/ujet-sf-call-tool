@@ -1,0 +1,435 @@
+/* Player Container */
+.player-container {
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ==========================================
+   RECORDING NAVIGATOR
+   ========================================== */
+.recording-navigator {
+    background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    border: 1px solid #fde68a;
+}
+
+.navigator-header {
+    margin-bottom: 0.5rem;
+}
+
+.recording-count {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #92400e;
+    display: flex;
+    align-items: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.recording-count lightning-icon {
+    --slds-c-icon-color-foreground-default: #d97706;
+}
+
+.recording-pills {
+    gap: 0.5rem;
+}
+
+.recording-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    border-radius: 24px;
+    border: 2px solid #e2e8f0;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.recording-pill:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.recording-pill.active {
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+}
+
+.recording-pill.active:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+.pill-icon {
+    font-size: 1.125rem;
+}
+
+.pill-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+.pill-duration {
+    font-size: 0.75rem;
+    font-weight: 500;
+    opacity: 0.75;
+    padding: 0.125rem 0.5rem;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+    font-feature-settings: 'tnum' on, 'lnum' on;
+}
+
+.recording-pill.active .pill-duration {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* ==========================================
+   AUDIO SECTION
+   ========================================== */
+.audio-section {
+    background: linear-gradient(145deg, #1e3a5f 0%, #0f2744 100%);
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.audio-title {
+    color: #e8f4fd;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    font-size: 0.9375rem;
+}
+
+.audio-title lightning-icon {
+    --slds-c-icon-color-foreground-default: #60a5fa;
+}
+
+/* Playback Controls */
+.playback-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.playback-controls lightning-button-icon {
+    --slds-c-button-icon-color-foreground: #93c5fd;
+}
+
+/* Progress Bar */
+.audio-progress-container {
+    padding: 0 0.5rem;
+}
+
+.time-display {
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-feature-settings: 'tnum' on, 'lnum' on;
+}
+
+.current-time {
+    color: #60a5fa;
+}
+
+.duration {
+    color: #94a3b8;
+}
+
+.progress-bar-wrapper {
+    height: 24px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px 0;
+}
+
+.progress-bar {
+    position: relative;
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    overflow: visible;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+    border-radius: 3px;
+    transition: width 0.1s ease;
+}
+
+.progress-handle {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px;
+    height: 14px;
+    background: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.progress-handle:hover {
+    transform: translate(-50%, -50%) scale(1.2);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Speed Control */
+.speed-control lightning-button-group {
+    --slds-c-button-brand-color-background: #3b82f6;
+    --slds-c-button-neutral-color-background: rgba(255, 255, 255, 0.1);
+    --slds-c-button-neutral-color-border: rgba(255, 255, 255, 0.2);
+    --slds-c-button-text-color: #e8f4fd;
+}
+
+.speed-control lightning-button {
+    --slds-c-button-text-font-size: 0.75rem;
+}
+
+/* Hidden audio element */
+.hidden-audio {
+    display: none;
+}
+
+/* ==========================================
+   TRANSCRIPT SECTION
+   ========================================== */
+.transcript-section {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.transcript-header {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.transcript-title {
+    color: #334155;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.transcript-title lightning-icon {
+    --slds-c-icon-color-foreground-default: #64748b;
+}
+
+.transcript-hint {
+    font-size: 0.6875rem;
+    font-weight: 400;
+    color: #94a3b8;
+    font-style: italic;
+    margin-left: 0.5rem;
+}
+
+.transcript-actions {
+    display: flex;
+    align-items: center;
+}
+
+/* Transcript Content */
+.transcript-content {
+    max-height: 400px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+.transcript-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.transcript-content::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.transcript-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.transcript-content::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Transcript Entry - Enhanced Click-to-Seek Design */
+.transcript-entry {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+}
+
+.transcript-entry::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: transparent;
+    transition: background 0.15s ease;
+}
+
+.transcript-entry:hover {
+    background: #f8fafc;
+}
+
+.transcript-entry:hover::before {
+    background: #cbd5e1;
+}
+
+.transcript-entry:last-child {
+    border-bottom: none;
+}
+
+/* Active Entry */
+.active-entry {
+    background: linear-gradient(90deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.active-entry::before {
+    background: #3b82f6 !important;
+    width: 4px;
+}
+
+/* Entry Left - Timestamp */
+.entry-left {
+    flex-shrink: 0;
+    width: 48px;
+}
+
+.entry-timestamp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #3b82f6;
+    background: #eff6ff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-feature-settings: 'tnum' on, 'lnum' on;
+    transition: all 0.15s ease;
+    min-width: 40px;
+}
+
+.transcript-entry:hover .entry-timestamp {
+    background: #dbeafe;
+    transform: scale(1.05);
+}
+
+.active-entry .entry-timestamp {
+    background: #3b82f6;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+
+/* Entry Right - Content */
+.entry-right {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Speaker Names with Color Coding */
+.entry-speaker {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 4px;
+}
+
+.speaker-bot {
+    color: #7c3aed;
+    background: #f5f3ff;
+}
+
+.speaker-customer {
+    color: #059669;
+    background: #ecfdf5;
+}
+
+.speaker-agent {
+    color: #0369a1;
+    background: #e0f2fe;
+}
+
+/* Entry Text */
+.entry-text {
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: #334155;
+}
+
+.active-entry .entry-text {
+    color: #1e293b;
+    font-weight: 500;
+}
+
+/* No Transcript State */
+.no-transcript {
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+/* ==========================================
+   RESPONSIVE ADJUSTMENTS
+   ========================================== */
+@media (max-width: 768px) {
+    .transcript-content {
+        max-height: 300px;
+    }
+    
+    .recording-pills {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .recording-pill {
+        justify-content: center;
+    }
+    
+    .entry-left {
+        width: 40px;
+    }
+    
+    .entry-timestamp {
+        font-size: 0.625rem;
+        padding: 0.125rem 0.375rem;
+        min-width: 36px;
+    }
+}
+
+/* ==========================================
+   ANIMATIONS
+   ========================================== */
+@keyframes pulse-highlight {
+    0% {
+        background: #bfdbfe;
+    }
+    100% {
+        background: linear-gradient(90deg, #eff6ff 0%, #dbeafe 100%);
+    }
+}
+
+.active-entry {
+    animation: pulse-highlight 0.4s ease;
+}

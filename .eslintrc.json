@@ -1,0 +1,25 @@
+{
+  "extends": ["@salesforce/eslint-config-lwc/recommended"],
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "env": {
+    "browser": true,
+    "es2022": true
+  },
+  "rules": {
+    "no-console": "warn",
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@lwc/lwc/no-async-operation": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["*.test.js", "**/__tests__/**/*.js"],
+      "env": {
+        "jest": true
+      }
+    }
+  ]
+}
+

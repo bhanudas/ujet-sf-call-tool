@@ -1,0 +1,96 @@
+# Sample/test assets
+docs/assets/
+
+# Salesforce DX
+.sfdx/
+.sf/
+.localdevserver/
+
+# Salesforce scratch org auth
+*.key
+authFile.json
+
+# Salesforce deployment/retrieve artifacts
+deploy/
+retrieve/
+mdapioutput/
+mdapipkg/
+
+# Node.js & npm
+node_modules/
+package-lock.json
+yarn.lock
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE & Editors
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+.classpath
+*.swp
+*.swo
+*~
+
+# VS Code (keep settings but ignore history/cache)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Coverage & Test output
+coverage/
+.nyc_output/
+test-results/
+junit.xml
+
+# Build artifacts
+dist/
+build/
+tmp/
+temp/
+*.tmp
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.env
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# Debug
+*.debug
+
+# SOQL/Tooling query results
+query-results/
+
+# LWC Jest
+__lwr_cache__/
+.jest/
+
+# Scratch org snapshots
+*.scratch
+
+# Certificates
+*.pem
+*.crt
+

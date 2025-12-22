@@ -17,11 +17,11 @@ This tool provides a rich call playback experience within Salesforce, allowing a
 
 ### Required Dependencies
 
-| Dependency | Description |
-|------------|-------------|
+| Dependency               | Description                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------------ |
 | **UJET Managed Package** | Required for `UJET__UJET_Session__c` object and call data. Install from UJET/Google. |
-| **Google CCAAS** | Provides call recordings and transcript generation (VA and RT transcripts) |
-| **Salesforce Platform** | API version 59.0 or higher |
+| **Google CCAAS**         | Provides call recordings and transcript generation (VA and RT transcripts)           |
+| **Salesforce Platform**  | API version 59.0 or higher                                                           |
 
 ### UJET Session Object Fields Used
 
@@ -122,10 +122,10 @@ Call ID: 12345
 
 ### Supported Transcript Types
 
-| Prefix | Type | Description |
-|--------|------|-------------|
-| `va_transcript_*` | Virtual Agent | IVR/Bot conversation transcript |
-| `rt_transcript_*` | Real-Time | Live agent conversation transcript |
+| Prefix            | Type          | Description                        |
+| ----------------- | ------------- | ---------------------------------- |
+| `va_transcript_*` | Virtual Agent | IVR/Bot conversation transcript    |
+| `rt_transcript_*` | Real-Time     | Live agent conversation transcript |
 
 ### Recording Matching
 
@@ -209,17 +209,18 @@ Modify `VoicecallSessionController.parseTranscript()` to adjust the regex patter
 ### Permission errors
 
 Ensure the user has:
+
 - Read access to `UJET__UJET_Session__c`
 - Read access to `ContentDocument` and `ContentVersion`
 - The Apex class is included in their profile/permission set
 
 ## License
 
-Proprietary - Internal Use Only
+MIT
 
 ## Support
 
 For issues related to:
+
 - **UJET Integration**: Contact UJET/Google Support
 - **This Component**: Open an issue in this repository
-

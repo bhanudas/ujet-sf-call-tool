@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Voice Call Reviewer - Platform</label>
+    <description>Grants read access to UJET Session records, call recordings, transcripts, and related files for reviewing voice calls. For Salesforce Platform licensed users.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <license>Salesforce Platform</license>
+
+    <!-- Apex Class Access -->
+    <classAccesses>
+        <apexClass>VoicecallSessionController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+
+    <!-- UJET Session Object Permissions -->
+    <objectPermissions>
+        <object>UJET__UJET_Session__c</object>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+
+    <!-- UJET Session Field Permissions -->
+    <fieldPermissions>
+        <field>UJET__UJET_Session__c.UJET__Call_Duration__c</field>
+        <editable>false</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>UJET__UJET_Session__c.UJET__Session_Type__c</field>
+        <editable>false</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>UJET__UJET_Session__c.UJET__Status__c</field>
+        <editable>false</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>UJET__UJET_Session__c.UJET__Call_Id__c</field>
+        <editable>false</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>UJET__UJET_Session__c.UJET__Case__c</field>
+        <editable>false</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+</PermissionSet>
+

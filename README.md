@@ -120,9 +120,16 @@ force-app/
             └── Voice_Call_Reviewer.permissionset-meta.xml
 ```
 
-## Permission Set
+## Permission Sets
 
-The **Voice Call Reviewer** permission set is included and grants:
+Two permission sets are included for different license types:
+
+| Permission Set | License Type | Use For |
+|----------------|--------------|---------|
+| **Voice Call Reviewer** | Salesforce | Full Salesforce licensed users |
+| **Voice Call Reviewer - Platform** | Salesforce Platform | Platform licensed users |
+
+Both permission sets grant:
 
 | Access Type | Details |
 |-------------|---------|

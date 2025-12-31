@@ -60,7 +60,16 @@ sf org login web -a MyOrg
 sf project deploy start --target-org MyOrg
 ```
 
-### 5. Add Component to Case Record Page
+### 5. Assign Permission Set
+
+Assign the included permission set to users who need to review calls:
+
+1. Navigate to **Setup → Permission Sets**
+2. Find **Voice Call Reviewer**
+3. Click **Manage Assignments → Add Assignment**
+4. Select users and save
+
+### 6. Add Component to Case Record Page
 
 1. Navigate to **Setup → Object Manager → Case → Lightning Record Pages**
 2. Edit the desired record page
@@ -96,18 +105,31 @@ force-app/
         ├── classes/
         │   ├── VoicecallSessionController.cls      # Apex controller
         │   └── VoicecallSessionController.cls-meta.xml
-        └── lwc/
-            ├── voicecallSessionPlayer/             # Parent LWC
-            │   ├── voicecallSessionPlayer.html
-            │   ├── voicecallSessionPlayer.js
-            │   ├── voicecallSessionPlayer.css
-            │   └── voicecallSessionPlayer.js-meta.xml
-            └── callTranscriptPlayer/               # Child LWC
-                ├── callTranscriptPlayer.html
-                ├── callTranscriptPlayer.js
-                ├── callTranscriptPlayer.css
-                └── callTranscriptPlayer.js-meta.xml
+        ├── lwc/
+        │   ├── voicecallSessionPlayer/             # Parent LWC
+        │   │   ├── voicecallSessionPlayer.html
+        │   │   ├── voicecallSessionPlayer.js
+        │   │   ├── voicecallSessionPlayer.css
+        │   │   └── voicecallSessionPlayer.js-meta.xml
+        │   └── callTranscriptPlayer/               # Child LWC
+        │       ├── callTranscriptPlayer.html
+        │       ├── callTranscriptPlayer.js
+        │       ├── callTranscriptPlayer.css
+        │       └── callTranscriptPlayer.js-meta.xml
+        └── permissionsets/
+            └── Voice_Call_Reviewer.permissionset-meta.xml
 ```
+
+## Permission Set
+
+The **Voice Call Reviewer** permission set is included and grants:
+
+| Access Type | Details |
+|-------------|---------|
+| **Object** | Read + View All on `UJET__UJET_Session__c` |
+| **Fields** | Read on Call Duration, Session Type, Status, Call ID, Case lookup |
+| **Apex** | `VoicecallSessionController` class access |
+| **Files** | View All Files (for recordings and transcripts) |
 
 ## Transcript Format
 
@@ -208,11 +230,11 @@ Modify `VoicecallSessionController.parseTranscript()` to adjust the regex patter
 
 ### Permission errors
 
-Ensure the user has:
+Assign the **Voice Call Reviewer** permission set, or ensure the user has:
 
-- Read access to `UJET__UJET_Session__c`
-- Read access to `ContentDocument` and `ContentVersion`
-- The Apex class is included in their profile/permission set
+- Read access to `UJET__UJET_Session__c` and required fields
+- View All Files permission (for recordings and transcripts)
+- Access to `VoicecallSessionController` Apex class
 
 ## License
 
@@ -224,3 +246,4 @@ For issues related to:
 
 - **UJET Integration**: Contact UJET/Google Support
 - **This Component**: Open an issue in this repository
+

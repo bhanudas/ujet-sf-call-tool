@@ -129,7 +129,8 @@ The **Voice Call Reviewer** permission set is included and grants:
 | **Object** | Read + View All on `UJET__UJET_Session__c` |
 | **Fields** | Read on Call Duration, Session Type, Status, Call ID, Case lookup |
 | **Apex** | `VoicecallSessionController` class access |
-| **Files** | View All Files (for recordings and transcripts) |
+
+> **Note:** File access for recordings and transcripts is controlled by Salesforce's standard content sharing. Users can access files attached to records they have access to.
 
 ## Transcript Format
 

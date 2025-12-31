@@ -49,10 +49,5 @@
         <readable>true</readable>
     </fieldPermissions>
 
-    <!-- User Permissions for Files/Content -->
-    <userPermissions>
-        <enabled>true</enabled>
-        <name>ViewAllFiles</name>
-    </userPermissions>
 </PermissionSet>
 

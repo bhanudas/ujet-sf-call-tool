@@ -149,12 +149,12 @@ force-app/
 
 The `VoicecallSessionController` provides these `@AuraEnabled` methods:
 
-| Method | Description |
-| ------ | ----------- |
-| `getVoicecallSessions(caseId)` | Retrieves all UJET Sessions for a Case with their documents (cacheable) |
-| `getTranscriptContent(documentId)` | Fetches transcript text content from ContentVersion |
-| `getAudioContent(documentId)` | Fetches audio as base64 data for Platform license support |
-| `parseTranscript(content, startTime)` | Parses transcript text into structured entries with timing |
+| Method                                | Description                                                             |
+| ------------------------------------- | ----------------------------------------------------------------------- |
+| `getVoicecallSessions(caseId)`        | Retrieves all UJET Sessions for a Case with their documents (cacheable) |
+| `getTranscriptContent(documentId)`    | Fetches transcript text content from ContentVersion                     |
+| `getAudioContent(documentId)`         | Fetches audio as base64 data for Platform license support               |
+| `parseTranscript(content, startTime)` | Parses transcript text into structured entries with timing              |
 
 ## Permission Sets
 

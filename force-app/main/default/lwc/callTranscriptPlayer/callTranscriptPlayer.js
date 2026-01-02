@@ -1,6 +1,7 @@
 import { LightningElement, api, track } from 'lwc';
 import getTranscriptContent from '@salesforce/apex/VoicecallSessionController.getTranscriptContent';
 import parseTranscript from '@salesforce/apex/VoicecallSessionController.parseTranscript';
+import getAudioContent from '@salesforce/apex/VoicecallSessionController.getAudioContent';
 import Logger from 'c/loggerService';
 
 // Initialize component logger
@@ -29,10 +30,12 @@ export default class CallTranscriptPlayer extends LightningElement {
 
     @track recordings = [];
     @track selectedRecordingId = null;
-    componentVersion = 'v4'; // Version marker for debugging
+    componentVersion = 'v5'; // Version marker for debugging
     @track transcriptEntries = [];
     @track isLoadingTranscript = true;
     @track isLoadingRecordings = true;
+    @track isLoadingAudio = false;
+    @track audioLoadError = null;
     @track currentTime = 0;
     @track duration = 0;
     @track isPlaying = false;
@@ -42,11 +45,35 @@ export default class CallTranscriptPlayer extends LightningElement {
 
     audioElement;
     recordingStartTime;
+    
+    // Map to store blob URLs for cleanup
+    audioBlobUrls = new Map();
 
     renderedCallback() {
         if (!this.audioElement) {
             this.audioElement = this.template.querySelector('audio');
         }
+    }
+
+    /**
+     * Cleanup blob URLs when component is destroyed to prevent memory leaks
+     */
+    disconnectedCallback() {
+        this.cleanupBlobUrls();
+    }
+
+    /**
+     * Revoke all blob URLs to free memory
+     */
+    cleanupBlobUrls() {
+        this.audioBlobUrls.forEach((url) => {
+            try {
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                // Ignore errors during cleanup
+            }
+        });
+        this.audioBlobUrls.clear();
     }
 
     /**
@@ -178,6 +205,7 @@ export default class CallTranscriptPlayer extends LightningElement {
         this.duration = 0;
         this.currentEntryIndex = -1;
         this.transcriptEntries = [];
+        this.audioLoadError = null;
         
         // Update pill classes
         this.recordings = this.recordings.map(rec => ({
@@ -194,9 +222,95 @@ export default class CallTranscriptPlayer extends LightningElement {
             this.isLoadingTranscript = false;
         }
 
-        // Update audio source
-        if (this.audioElement && selectedRec) {
-            this.audioElement.src = selectedRec.audioUrl;
+        // Load audio via Apex to ensure Platform license users can access it
+        if (selectedRec) {
+            this.loadAudioViaApex(selectedRec.id);
+        }
+    }
+
+    /**
+     * Load audio content via Apex and create a blob URL
+     * This method ensures Platform license users can access audio files
+     * by fetching content through Apex instead of direct servlet access.
+     */
+    async loadAudioViaApex(documentId) {
+        this.isLoadingAudio = true;
+        this.audioLoadError = null;
+        
+        log.group('Loading Audio via Apex');
+        log.time('audioLoad');
+        log.debug('Fetching audio content', { documentId });
+
+        try {
+            // Check if we already have a blob URL cached for this document
+            if (this.audioBlobUrls.has(documentId)) {
+                const cachedUrl = this.audioBlobUrls.get(documentId);
+                log.debug('Using cached blob URL', { documentId });
+                this.setAudioSource(cachedUrl);
+                this.isLoadingAudio = false;
+                log.timeEnd('audioLoad');
+                log.groupEnd();
+                return;
+            }
+
+            // Fetch audio content as base64 from Apex
+            const audioData = await getAudioContent({ documentId });
+            
+            if (audioData && audioData.base64Data) {
+                log.debug('Audio content received', { 
+                    contentType: audioData.contentType, 
+                    fileSize: audioData.fileSize,
+                    fileName: audioData.fileName
+                });
+
+                // Convert base64 to blob
+                const binaryString = atob(audioData.base64Data);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                const blob = new Blob([bytes], { type: audioData.contentType });
+
+                // Create blob URL
+                const blobUrl = URL.createObjectURL(blob);
+                
+                // Cache the blob URL for reuse
+                this.audioBlobUrls.set(documentId, blobUrl);
+
+                // Set audio source
+                this.setAudioSource(blobUrl);
+                
+                log.success('Audio blob URL created', { 
+                    blobUrl: blobUrl.substring(0, 50) + '...',
+                    contentType: audioData.contentType
+                });
+            } else {
+                log.warn('Audio content is empty');
+                this.audioLoadError = 'Audio file is empty or unavailable';
+            }
+        } catch (err) {
+            log.error('Failed to load audio via Apex', err);
+            this.audioLoadError = 'Failed to load audio file. Please try again.';
+            
+            // Fallback: try direct URL as last resort (for users with direct access)
+            const selectedRec = this.recordings.find(r => r.id === documentId);
+            if (selectedRec && selectedRec.audioUrl) {
+                log.info('Attempting fallback to direct URL');
+                this.setAudioSource(selectedRec.audioUrl);
+            }
+        } finally {
+            this.isLoadingAudio = false;
+            log.timeEnd('audioLoad');
+            log.groupEnd();
+        }
+    }
+
+    /**
+     * Set the audio element source and load
+     */
+    setAudioSource(url) {
+        if (this.audioElement) {
+            this.audioElement.src = url;
             this.audioElement.load();
         }
     }
@@ -394,8 +508,32 @@ export default class CallTranscriptPlayer extends LightningElement {
         }
     }
 
-    handleAudioError(_event) {
-        // Audio error handled silently - user will see playback issues naturally
+    handleAudioError(event) {
+        log.error('Audio element error', {
+            error: event.target?.error?.code,
+            message: event.target?.error?.message
+        });
+        
+        // Only set error if we don't already have one (Apex load might have already handled it)
+        if (!this.audioLoadError) {
+            const errorCode = event.target?.error?.code;
+            switch (errorCode) {
+                case MediaError.MEDIA_ERR_ABORTED:
+                    this.audioLoadError = 'Audio playback was aborted.';
+                    break;
+                case MediaError.MEDIA_ERR_NETWORK:
+                    this.audioLoadError = 'A network error occurred while loading the audio.';
+                    break;
+                case MediaError.MEDIA_ERR_DECODE:
+                    this.audioLoadError = 'The audio file could not be decoded.';
+                    break;
+                case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                    this.audioLoadError = 'Unable to play this audio file. The format may not be supported or you may not have access.';
+                    break;
+                default:
+                    this.audioLoadError = 'An error occurred while loading the audio file.';
+            }
+        }
     }
 
     // Playback controls
@@ -584,5 +722,21 @@ export default class CallTranscriptPlayer extends LightningElement {
 
     get noTranscriptAvailable() {
         return !this.isLoadingTranscript && (!this.transcriptEntries || this.transcriptEntries.length === 0);
+    }
+
+    get showAudioLoading() {
+        return this.isLoadingAudio && !this.audioLoadError;
+    }
+
+    get showAudioError() {
+        return !this.isLoadingAudio && this.audioLoadError;
+    }
+
+    get audioErrorMessage() {
+        return this.audioLoadError || 'An error occurred while loading the audio file.';
+    }
+
+    get audioControlsDisabled() {
+        return this.isLoadingAudio || this.audioLoadError;
     }
 }

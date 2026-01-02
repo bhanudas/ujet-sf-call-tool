@@ -100,6 +100,7 @@ Assign the included permission set to users who need to review calls:
 - **Transcript Matching**: Automatically pairs the correct transcript file with its corresponding audio recording
 - **Auto-scroll**: Keeps the active transcript line in view (toggleable)
 - **Download**: Button to download the full transcript file
+- **Platform License Support**: Fetches audio via Apex for users without direct file servlet access
 
 ### `loggerService`
 
@@ -117,26 +118,43 @@ force-app/
 └── main/
     └── default/
         ├── classes/
-        │   ├── VoicecallSessionController.cls      # Apex controller
-        │   └── VoicecallSessionController.cls-meta.xml
+        │   ├── VoicecallSessionController.cls           # Apex controller
+        │   ├── VoicecallSessionController.cls-meta.xml
+        │   ├── VoicecallSessionControllerTest.cls       # Test class (97% coverage)
+        │   └── VoicecallSessionControllerTest.cls-meta.xml
         ├── lwc/
-        │   ├── voicecallSessionPlayer/             # Parent LWC
+        │   ├── voicecallSessionPlayer/                  # Parent LWC
         │   │   ├── voicecallSessionPlayer.html
         │   │   ├── voicecallSessionPlayer.js
         │   │   ├── voicecallSessionPlayer.css
-        │   │   └── voicecallSessionPlayer.js-meta.xml
-        │   ├── callTranscriptPlayer/               # Child LWC
+        │   │   ├── voicecallSessionPlayer.js-meta.xml
+        │   │   └── __tests__/
+        │   │       └── voicecallSessionPlayer.test.js
+        │   ├── callTranscriptPlayer/                    # Child LWC
         │   │   ├── callTranscriptPlayer.html
         │   │   ├── callTranscriptPlayer.js
         │   │   ├── callTranscriptPlayer.css
-        │   │   └── callTranscriptPlayer.js-meta.xml
-        │   └── loggerService/                      # Logging Utility
+        │   │   ├── callTranscriptPlayer.js-meta.xml
+        │   │   └── __tests__/
+        │   │       └── callTranscriptPlayer.test.js
+        │   └── loggerService/                           # Logging Utility
         │       ├── loggerService.js
         │       └── loggerService.js-meta.xml
         └── permissionsets/
             ├── Voice_Call_Reviewer.permissionset-meta.xml
             └── Voice_Call_Reviewer_Platform.permissionset-meta.xml
 ```
+
+## Apex Controller Methods
+
+The `VoicecallSessionController` provides these `@AuraEnabled` methods:
+
+| Method | Description |
+| ------ | ----------- |
+| `getVoicecallSessions(caseId)` | Retrieves all UJET Sessions for a Case with their documents (cacheable) |
+| `getTranscriptContent(documentId)` | Fetches transcript text content from ContentVersion |
+| `getAudioContent(documentId)` | Fetches audio as base64 data for Platform license support |
+| `parseTranscript(content, startTime)` | Parses transcript text into structured entries with timing |
 
 ## Permission Sets
 
@@ -156,6 +174,16 @@ Both permission sets grant:
 | **Apex**    | `VoicecallSessionController` class access                         |
 
 > **Note:** File access for recordings and transcripts is controlled by Salesforce's standard content sharing. Users can access files attached to records they have access to.
+
+### Platform License Audio Playback
+
+Platform license users have restricted access to Salesforce's file servlet (`/sfc/servlet.shepherd/`), which can prevent direct audio playback. To address this, the component:
+
+1. **Fetches audio via Apex**: The `getAudioContent()` method retrieves audio files as base64-encoded data through Apex, which has proper ContentVersion access
+2. **Creates blob URLs**: The LWC converts the base64 data to a blob URL for the HTML5 audio element
+3. **Caches for performance**: Blob URLs are cached to avoid re-fetching when switching between recordings
+
+This approach mirrors how transcripts are fetched (via `getTranscriptContent()`) and ensures consistent functionality across license types.
 
 ## Transcript Format
 
@@ -262,6 +290,19 @@ const CONFIG = {
 2. Check ContentDocumentLinks are attached to UJET Sessions
 3. Ensure audio files have `.mp3`, `.wav`, or `.m4a` extensions
 
+### Audio not playing (Platform license users)
+
+If Platform license users see "Unable to play audio" or the audio doesn't load:
+
+1. Check browser console for `[UJET-CallTool CallTranscriptPlayer]` logs
+2. Look for "Loading Audio via Apex" followed by "Audio blob URL created" - this indicates successful fetch
+3. If you see "Failed to load audio via Apex", verify:
+   - User has the **Voice Call Reviewer - Platform** permission set assigned
+   - User has access to the Case and its related UJET Session records
+   - The `VoicecallSessionController` Apex class is accessible
+
+**Technical Details**: Platform license users cannot access Salesforce's file servlet directly. The component fetches audio through the `getAudioContent()` Apex method, which returns base64-encoded audio data that's converted to a blob URL for playback.
+
 ### Transcript not syncing
 
 1. Confirm transcript follows expected format with timestamps `[HH:MM:SS Speaker]`
@@ -270,10 +311,15 @@ const CONFIG = {
 
 ### Permission errors
 
-Assign the **Voice Call Reviewer** permission set, or ensure the user has:
+Assign the appropriate permission set for the user's license type:
+
+- **Salesforce license**: Assign **Voice Call Reviewer**
+- **Platform license**: Assign **Voice Call Reviewer - Platform**
+
+Ensure the user has:
 
 - Read access to `UJET__UJET_Session__c` and required fields
-- View All Files permission (for recordings and transcripts)
+- Access to files attached to records they can view
 - Access to `VoicecallSessionController` Apex class
 
 ## License

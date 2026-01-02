@@ -10,8 +10,11 @@ This tool provides a rich call playback experience within Salesforce, allowing a
 - 📜 View synchronized transcripts that highlight as audio plays
 - 🤖 Support for both Virtual Agent (VA) and Real-Time (RT) transcripts
 - 🔄 Handle multiple recordings per session (e.g., IVR + Agent calls)
+- 💊 Intuitive "pill" interface to switch between recordings (Virtual Agent vs. Agent)
 - ⏩ Variable playback speed (0.5x, 1x, 1.5x, 2x)
 - 📍 Click-to-seek within transcripts
+- 🖱️ Auto-scroll functionality with toggle control
+- 🐛 Enhanced debugging with a centralized Logger Service
 
 ## Prerequisites
 
@@ -65,7 +68,7 @@ sf project deploy start --target-org MyOrg
 Assign the included permission set to users who need to review calls:
 
 1. Navigate to **Setup → Permission Sets**
-2. Find **Voice Call Reviewer**
+2. Find **Voice Call Reviewer** or **Voice Call Reviewer - Platform** (depending on user license)
 3. Click **Manage Assignments → Add Assignment**
 4. Select users and save
 
@@ -85,16 +88,27 @@ Assign the included permission set to users who need to review calls:
 - Fetches all UJET Sessions related to the Case
 - Displays sessions in an accordion layout
 - Auto-expands when only one session exists
+- Formats dates and durations for readability
 
 ### `callTranscriptPlayer`
 
 **Child component** for individual session playback.
 
-- Audio player with standard controls
-- Recording selector (pill UI for multiple recordings)
-- Synchronized transcript display
-- Auto-scroll toggle
-- Transcript download
+- Audio player with standard controls (play/pause, skip, speed)
+- **Smart Recording Selection**: Automatically detects and labels recordings (Virtual Agent vs. Agent) based on file naming conventions
+- **Transcript Synchronization**: Highlights the current line in the transcript as audio plays
+- **Transcript Matching**: Automatically pairs the correct transcript file with its corresponding audio recording
+- **Auto-scroll**: Keeps the active transcript line in view (toggleable)
+- **Download**: Button to download the full transcript file
+
+### `loggerService`
+
+**Utility component** for centralized logging.
+
+- Provides color-coded, formatted console logs
+- Supports log levels (debug, info, warn, error)
+- Groups related logs for cleaner console output
+- Includes performance timing utilities
 
 ## File Structure
 
@@ -111,31 +125,35 @@ force-app/
         │   │   ├── voicecallSessionPlayer.js
         │   │   ├── voicecallSessionPlayer.css
         │   │   └── voicecallSessionPlayer.js-meta.xml
-        │   └── callTranscriptPlayer/               # Child LWC
-        │       ├── callTranscriptPlayer.html
-        │       ├── callTranscriptPlayer.js
-        │       ├── callTranscriptPlayer.css
-        │       └── callTranscriptPlayer.js-meta.xml
+        │   ├── callTranscriptPlayer/               # Child LWC
+        │   │   ├── callTranscriptPlayer.html
+        │   │   ├── callTranscriptPlayer.js
+        │   │   ├── callTranscriptPlayer.css
+        │   │   └── callTranscriptPlayer.js-meta.xml
+        │   └── loggerService/                      # Logging Utility
+        │       ├── loggerService.js
+        │       └── loggerService.js-meta.xml
         └── permissionsets/
-            └── Voice_Call_Reviewer.permissionset-meta.xml
+            ├── Voice_Call_Reviewer.permissionset-meta.xml
+            └── Voice_Call_Reviewer_Platform.permissionset-meta.xml
 ```
 
 ## Permission Sets
 
 Two permission sets are included for different license types:
 
-| Permission Set | License Type | Use For |
-|----------------|--------------|---------|
-| **Voice Call Reviewer** | Salesforce | Full Salesforce licensed users |
-| **Voice Call Reviewer - Platform** | Salesforce Platform | Platform licensed users |
+| Permission Set                     | License Type        | Use For                        |
+| ---------------------------------- | ------------------- | ------------------------------ |
+| **Voice Call Reviewer**            | Salesforce          | Full Salesforce licensed users |
+| **Voice Call Reviewer - Platform** | Salesforce Platform | Platform licensed users        |
 
 Both permission sets grant:
 
-| Access Type | Details |
-|-------------|---------|
-| **Object** | Read + View All on `UJET__UJET_Session__c` |
-| **Fields** | Read on Call Duration, Session Type, Status, Call ID, Case lookup |
-| **Apex** | `VoicecallSessionController` class access |
+| Access Type | Details                                                           |
+| ----------- | ----------------------------------------------------------------- |
+| **Object**  | Read + View All on `UJET__UJET_Session__c`                        |
+| **Fields**  | Read on Call Duration, Session Type, Status, Call ID, Case lookup |
+| **Apex**    | `VoicecallSessionController` class access                         |
 
 > **Note:** File access for recordings and transcripts is controlled by Salesforce's standard content sharing. Users can access files attached to records they have access to.
 
@@ -161,8 +179,8 @@ Call ID: 12345
 
 Recordings are automatically matched to transcripts:
 
-- Primary recording → `va_transcript_*`
-- Secondary recording (`*_2.mp3`) → `rt_transcript_*`
+- Primary recording (no `_2` suffix) → `va_transcript_*` (Virtual Agent)
+- Secondary recording (`*_2.mp3`) → `rt_transcript_*` (Agent)
 
 ## Development
 
@@ -222,6 +240,20 @@ Edit `callTranscriptPlayer.html` to modify available speed options:
 
 Modify `VoicecallSessionController.parseTranscript()` to adjust the regex pattern for different transcript formats.
 
+### Logging Configuration
+
+The `loggerService` can be configured in `loggerService.js`:
+
+```javascript
+const CONFIG = {
+  ENABLED: true, // Master switch
+  MIN_LEVEL: "debug", // 'debug' | 'info' | 'warn' | 'error'
+  APP_PREFIX: "UJET", // Log prefix
+  ENABLE_TIMING: true, // Enable performance timers
+  ENABLE_GROUPING: true, // Enable log grouping
+};
+```
+
 ## Troubleshooting
 
 ### No recordings appearing
@@ -232,8 +264,8 @@ Modify `VoicecallSessionController.parseTranscript()` to adjust the regex patter
 
 ### Transcript not syncing
 
-1. Confirm transcript follows expected format with timestamps
-2. Check browser console for parsing errors
+1. Confirm transcript follows expected format with timestamps `[HH:MM:SS Speaker]`
+2. Check browser console for parsing errors (look for `[UJET-CallTool]` logs)
 3. Verify transcript file is linked to the UJET Session
 
 ### Permission errors
@@ -254,4 +286,3 @@ For issues related to:
 
 - **UJET Integration**: Contact UJET/Google Support
 - **This Component**: Open an issue in this repository
-

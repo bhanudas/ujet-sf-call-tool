@@ -1,5 +1,13 @@
 <template>
-    <lightning-card title="Call Recordings" icon-name="standard:voice_call">
+    <lightning-card icon-name="standard:document">
+        <!-- Card Title with Session Count -->
+        <h2 slot="title">
+            Call Recordings
+            <template lwc:if={hasCalls}>
+                <span class="slds-badge slds-badge_lightest slds-m-left_x-small">{sessionCount}</span>
+            </template>
+        </h2>
+
         <!-- Loading State -->
         <template lwc:if={isLoading}>
             <div class="slds-align_absolute-center slds-p-around_large">
@@ -9,31 +17,25 @@
 
         <!-- Error State -->
         <template lwc:if={error}>
-            <div class="slds-p-around_medium">
-                <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
-                    <span class="slds-assistive-text">Error</span>
-                    <h2>{errorMessage}</h2>
-                </div>
+            <div class="error-alert">
+                <h2>{errorMessage}</h2>
             </div>
         </template>
 
         <!-- No Calls State -->
         <template lwc:if={hasNoCalls}>
-            <div class="slds-p-around_medium slds-align_absolute-center">
-                <div class="slds-illustration slds-illustration_small">
-                    <lightning-icon icon-name="utility:info" size="large" class="slds-m-bottom_small"></lightning-icon>
-                    <h3 class="slds-text-heading_medium slds-m-top_medium">No Call Recordings</h3>
-                    <p class="slds-text-body_regular slds-m-top_x-small">
-                        There are no voice call sessions associated with this case.
-                    </p>
-                </div>
+            <div class="empty-state">
+                <lightning-icon icon-name="utility:volume_off" size="large" class="empty-state-icon"></lightning-icon>
+                <h3 class="empty-state-title">No Call Recordings</h3>
+                <p class="empty-state-text">
+                    There are no voice call sessions associated with this case.
+                </p>
             </div>
         </template>
 
         <!-- Calls List -->
         <template lwc:if={hasCalls}>
             <div class="calls-container">
-                <!-- Call Tabs / Accordion -->
                 <lightning-accordion allow-multiple-sections-open active-section-name={activeSections}>
                     <template for:each={sessions} for:item="session">
                         <lightning-accordion-section 
@@ -42,31 +44,13 @@
                             label={session.accordionLabel}>
                             
                             <div class="call-session-content">
-                                <!-- Call Metadata Header -->
-                                <div class="call-metadata slds-grid slds-wrap slds-p-around_small slds-box slds-box_x-small slds-m-bottom_small">
-                                    <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-4 slds-p-around_x-small">
-                                        <span class="slds-text-title_caps metadata-label">Date</span>
-                                        <p class="metadata-value">{session.formattedDate}</p>
-                                    </div>
-                                    <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-4 slds-p-around_x-small">
-                                        <span class="slds-text-title_caps metadata-label">Duration</span>
-                                        <p class="metadata-value">{session.formattedDuration}</p>
-                                    </div>
-                                    <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-4 slds-p-around_x-small">
-                                        <span class="slds-text-title_caps metadata-label">Agent</span>
-                                        <p class="metadata-value">{session.agentName}</p>
-                                    </div>
-                                    <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-4 slds-p-around_x-small">
-                                        <span class="slds-text-title_caps metadata-label">Type</span>
-                                        <p class="metadata-value">{session.callType}</p>
-                                    </div>
-                                </div>
 
                                 <!-- Transcript Player -->
                                 <c-call-transcript-player
                                     session-id={session.sessionId}
                                     audio-url={session.audioUrl}
                                     documents={session.documents}
+                                    agent-name={session.agentName}
                                     onplaybackupdate={handlePlaybackUpdate}>
                                 </c-call-transcript-player>
                             </div>
@@ -77,4 +61,3 @@
         </template>
     </lightning-card>
 </template>
-

@@ -1,52 +1,88 @@
-/* Main container styling */
+/* =============================================================================
+   VOICECALL SESSION PLAYER - UI REDESIGN
+   Clean, modern interface
+   ============================================================================= */
+
+/* Main container */
 .calls-container {
-    max-height: 80vh;
+    max-height: 85vh;
     overflow-y: auto;
 }
 
-/* Call session content */
+/* Call session content wrapper */
 .call-session-content {
-    padding: 0.5rem;
+    padding: 0;
 }
 
-/* Metadata grid styling */
-.call-metadata {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
+/* =============================================================================
+   ACCORDION OVERRIDES
+   ============================================================================= */
+
+/* Card styling */
+:host {
+    --slds-c-card-color-background: #ffffff;
 }
 
-.metadata-label {
-    color: #64748b;
-    font-size: 0.65rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    display: block;
-    margin-bottom: 0.25rem;
+/* Accordion header styling */
+:host lightning-accordion-section {
+    --slds-c-accordion-section-header-color-background: #f8fafc;
 }
 
-.metadata-value {
-    color: #1e293b;
-    font-size: 0.875rem;
-    font-weight: 500;
-    margin: 0;
+/* Session header styling */
+.session-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-/* Illustration styling for empty state */
-.slds-illustration {
+.session-icon {
+    --slds-c-icon-color-foreground-default: #6366f1;
+}
+
+/* =============================================================================
+   EMPTY & ERROR STATES
+   ============================================================================= */
+.empty-state {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 2rem;
-    color: #64748b;
+    justify-content: center;
+    padding: 3rem 2rem;
+    text-align: center;
 }
 
-.slds-illustration h3 {
+.empty-state-icon {
+    --slds-c-icon-color-foreground-default: #94a3b8;
+    margin-bottom: 1rem;
+}
+
+.empty-state-title {
     color: #334155;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
 }
 
-/* Override accordion section header for better visual hierarchy */
-:host lightning-accordion-section {
-    --slds-c-accordion-section-header-background-color: #f8fafc;
+.empty-state-text {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin: 0;
+    max-width: 300px;
+}
+
+/* Error alert styling */
+.error-alert {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem;
+}
+
+.error-alert h2 {
+    color: #dc2626;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin: 0;
 }
 

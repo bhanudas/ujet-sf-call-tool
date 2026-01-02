@@ -1,26 +1,35 @@
+/* =============================================================================
+   CALL TRANSCRIPT PLAYER - UI REDESIGN
+   Modern, clean interface matching the mockup design
+   ============================================================================= */
+
 /* Player Container */
 .player-container {
-    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: #ffffff;
 }
 
-/* ==========================================
+/* =============================================================================
    LOADING & EMPTY STATES
-   ========================================== */
+   ============================================================================= */
 .loading-section {
     min-height: 200px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%);
+    background: #f8fafc;
     border-radius: 12px;
     border: 1px solid #e2e8f0;
 }
 
 .no-recordings-section {
-    min-height: 180px;
-    background: linear-gradient(145deg, #fefce8 0%, #fef9c3 100%);
+    min-height: 160px;
+    background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
     border-radius: 12px;
     border: 1px solid #fde68a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .no-recordings-content {
@@ -28,7 +37,7 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 1rem;
+    padding: 1.5rem;
 }
 
 .no-recordings-icon {
@@ -38,149 +47,123 @@
 .no-recordings-title {
     color: #92400e;
     font-weight: 600;
+    font-size: 1rem;
+    margin-top: 0.75rem;
 }
 
 .no-recordings-text {
     color: #a16207;
+    font-size: 0.875rem;
     max-width: 280px;
+    margin-top: 0.25rem;
 }
 
-/* ==========================================
-   RECORDING NAVIGATOR
-   ========================================== */
+/* =============================================================================
+   RECORDING NAVIGATOR (Tab Pills) - Compact
+   ============================================================================= */
 .recording-navigator {
-    background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
-    border-radius: 12px;
-    padding: 0.75rem 1rem;
-    border: 1px solid #fde68a;
-}
-
-.navigator-header {
+    padding: 0;
     margin-bottom: 0.5rem;
 }
 
-.recording-count {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #92400e;
-    display: flex;
-    align-items: center;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.recording-count lightning-icon {
-    --slds-c-icon-color-foreground-default: #d97706;
-}
-
 .recording-pills {
-    gap: 0.5rem;
+    display: flex;
+    gap: 0.375rem;
+    flex-wrap: wrap;
 }
 
 .recording-pill {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1rem;
-    border-radius: 24px;
-    border: 2px solid #e2e8f0;
-    background: #ffffff;
+    gap: 0.375rem;
+    padding: 0.375rem 0.625rem;
+    border-radius: 6px;
+    border: 1px solid var(--slds-g-color-border-base-1, #e2e8f0);
+    background: var(--slds-g-color-neutral-base-100, #ffffff);
     cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all 0.15s ease;
+    font-family: inherit;
 }
 
 .recording-pill:hover {
-    border-color: #3b82f6;
-    background: #eff6ff;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    border-color: var(--slds-g-color-neutral-base-60, #cbd5e1);
+    background: var(--slds-g-color-neutral-base-95, #f8fafc);
 }
 
 .recording-pill.active {
-    border-color: #3b82f6;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: #ffffff;
-    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
-}
-
-.recording-pill.active:hover {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    border-color: var(--slds-g-color-brand-base-50, #0176d3);
+    background: var(--slds-g-color-brand-base-95, #eef4ff);
 }
 
 .pill-icon {
-    font-size: 1.125rem;
+    font-size: 0.875rem;
+    line-height: 1;
 }
 
 .pill-label {
     font-size: 0.8125rem;
-    font-weight: 600;
+    font-weight: 500;
+    color: var(--slds-g-color-neutral-base-10, #181818);
 }
 
 .pill-duration {
     font-size: 0.75rem;
     font-weight: 500;
-    opacity: 0.75;
-    padding: 0.125rem 0.5rem;
-    background: rgba(0, 0, 0, 0.06);
-    border-radius: 12px;
+    color: var(--slds-g-color-neutral-base-50, #706e6b);
     font-feature-settings: 'tnum' on, 'lnum' on;
 }
 
-.recording-pill.active .pill-duration {
-    background: rgba(255, 255, 255, 0.2);
+/* =============================================================================
+   AUDIO PLAYER SECTION
+   Using SLDS design tokens for theme-aware styling
+   ============================================================================= */
+.audio-section {
+    /* Use Salesforce neutral inverse background for dark sections */
+    background: var(--slds-g-color-neutral-base-95, var(--lwc-colorBackgroundAltInverse, #f3f3f3));
+    border-radius: 8px;
+    padding: 0.875rem;
+    border: 1px solid var(--slds-g-color-border-base-1, var(--lwc-colorBorder, #e5e5e5));
+    box-shadow: var(--slds-g-shadow-1, 0 1px 2px 0 rgba(0, 0, 0, 0.05));
 }
 
-/* ==========================================
-   AUDIO SECTION
-   ========================================== */
-.audio-section {
-    background: linear-gradient(145deg, #1e3a5f 0%, #0f2744 100%);
-    border-radius: 12px;
-    border: none;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+.audio-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.agent-name-display {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--slds-g-color-neutral-base-30, #444444);
 }
 
 .audio-title {
-    color: #e8f4fd;
-    font-weight: 600;
     display: flex;
     align-items: center;
-    font-size: 0.9375rem;
+    gap: 0.375rem;
+    color: var(--slds-g-color-neutral-base-10, var(--lwc-colorText, #181818));
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0;
 }
 
 .audio-title lightning-icon {
-    --slds-c-icon-color-foreground-default: #60a5fa;
+    display: none;
 }
 
-/* Playback Controls */
-.playback-controls {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.playback-controls lightning-button-icon {
-    --slds-c-button-icon-color-foreground: #93c5fd;
+.audio-title-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--slds-g-color-brand-base-50, var(--lwc-brandPrimary, #0176d3));
+    flex-shrink: 0;
 }
 
 /* Progress Bar */
 .audio-progress-container {
-    padding: 0 0.5rem;
-}
-
-.time-display {
-    font-size: 0.75rem;
-    font-weight: 500;
-    font-feature-settings: 'tnum' on, 'lnum' on;
-}
-
-.current-time {
-    color: #60a5fa;
-}
-
-.duration {
-    color: #94a3b8;
+    margin-bottom: 0.5rem;
 }
 
 .progress-bar-wrapper {
@@ -195,14 +178,14 @@
     position: relative;
     width: 100%;
     height: 6px;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--slds-g-color-neutral-base-80, #c9c9c9);
     border-radius: 3px;
     overflow: visible;
 }
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+    background: var(--slds-g-color-brand-base-50, var(--lwc-brandPrimary, #0176d3));
     border-radius: 3px;
     transition: width 0.1s ease;
 }
@@ -215,25 +198,82 @@
     height: 14px;
     background: #ffffff;
     border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.1s ease;
 }
 
 .progress-handle:hover {
-    transform: translate(-50%, -50%) scale(1.2);
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+    transform: translate(-50%, -50%) scale(1.15);
+}
+
+.time-display {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.25rem;
+}
+
+.current-time,
+.duration {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--slds-g-color-neutral-base-50, var(--lwc-colorTextDefault, #706e6b));
+    font-feature-settings: 'tnum' on, 'lnum' on;
+}
+
+/* Playback Controls */
+.playback-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.375rem;
+}
+
+.playback-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.playback-controls lightning-button-icon {
+    --slds-c-button-icon-color-foreground: var(--slds-g-color-neutral-base-50, #706e6b);
+}
+
+.play-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0 0.25rem;
 }
 
 /* Speed Control */
-.speed-control lightning-button-group {
-    --slds-c-button-brand-color-background: #3b82f6;
-    --slds-c-button-neutral-color-background: rgba(255, 255, 255, 0.1);
-    --slds-c-button-neutral-color-border: rgba(255, 255, 255, 0.2);
-    --slds-c-button-text-color: #e8f4fd;
+.speed-control {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
 }
 
-.speed-control lightning-button {
-    --slds-c-button-text-font-size: 0.75rem;
+.speed-button {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--slds-g-color-border-base-1, #c9c9c9);
+    background: var(--slds-g-color-neutral-base-100, #ffffff);
+    color: var(--slds-g-color-neutral-base-30, #444444);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+}
+
+.speed-button:hover {
+    background: var(--slds-g-color-neutral-base-95, #f3f3f3);
+    border-color: var(--slds-g-color-neutral-base-60, #939393);
+}
+
+.speed-button.active {
+    background: var(--slds-g-color-brand-base-50, var(--lwc-brandPrimary, #0176d3));
+    border-color: var(--slds-g-color-brand-base-50, var(--lwc-brandPrimary, #0176d3));
+    color: var(--slds-g-color-neutral-base-100, #ffffff);
 }
 
 /* Hidden audio element */
@@ -241,45 +281,67 @@
     display: none;
 }
 
-/* ==========================================
+/* =============================================================================
    TRANSCRIPT SECTION
-   ========================================== */
+   ============================================================================= */
 .transcript-section {
+    margin-top: 0.75rem;
     background: #ffffff;
     border-radius: 12px;
     border: 1px solid #e2e8f0;
     overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .transcript-header {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    background: #ffffff;
 }
 
 .transcript-title {
-    color: #334155;
-    font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.5rem;
+    color: #1e293b;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    margin: 0;
 }
 
 .transcript-title lightning-icon {
-    --slds-c-icon-color-foreground-default: #64748b;
+    display: none;
 }
 
 .transcript-hint {
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     font-weight: 400;
     color: #94a3b8;
     font-style: italic;
+}
+
+.beta-badge {
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #ffffff;
+    background: var(--slds-g-color-brand-base-50, #0176d3);
+    padding: 0.125rem 0.375rem;
+    border-radius: 3px;
     margin-left: 0.5rem;
 }
 
 .transcript-actions {
     display: flex;
     align-items: center;
+    gap: 0.25rem;
+}
+
+.transcript-actions lightning-button-icon {
+    --slds-c-button-icon-color-foreground: #64748b;
 }
 
 /* Transcript Content */
@@ -291,96 +353,74 @@
 
 /* Custom scrollbar */
 .transcript-content::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
 }
 
 .transcript-content::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background: transparent;
 }
 
 .transcript-content::-webkit-scrollbar-thumb {
     background: #cbd5e1;
-    border-radius: 4px;
+    border-radius: 3px;
 }
 
 .transcript-content::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
 }
 
-/* Transcript Entry - Enhanced Click-to-Seek Design */
+/* Transcript Entry */
 .transcript-entry {
     display: flex;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #f1f5f9;
+    gap: 0.875rem;
+    padding: 0.875rem 1rem;
     cursor: pointer;
-    transition: all 0.15s ease;
-    position: relative;
-}
-
-.transcript-entry::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: transparent;
     transition: background 0.15s ease;
+    position: relative;
+    border-left: 3px solid transparent;
 }
 
 .transcript-entry:hover {
     background: #f8fafc;
 }
 
-.transcript-entry:hover::before {
-    background: #cbd5e1;
-}
-
-.transcript-entry:last-child {
-    border-bottom: none;
+.transcript-entry:not(:last-child) {
+    border-bottom: 1px solid #f1f5f9;
 }
 
 /* Active Entry */
 .active-entry {
-    background: linear-gradient(90deg, #eff6ff 0%, #dbeafe 100%);
+    background: var(--slds-g-color-brand-base-95, var(--lwc-colorBackgroundHighlight, #f3f3f3));
+    border-left-color: var(--slds-g-color-brand-base-50, var(--lwc-brandPrimary, #0176d3));
 }
 
-.active-entry::before {
-    background: #3b82f6 !important;
-    width: 4px;
+.active-entry:hover {
+    background: var(--slds-g-color-brand-base-95, var(--lwc-colorBackgroundHighlight, #f3f3f3));
 }
 
 /* Entry Left - Timestamp */
 .entry-left {
     flex-shrink: 0;
-    width: 48px;
 }
 
 .entry-timestamp {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    color: #3b82f6;
-    background: #eff6ff;
-    padding: 0.25rem 0.5rem;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 0.375rem 0.5rem;
     border-radius: 6px;
     font-feature-settings: 'tnum' on, 'lnum' on;
+    min-width: 42px;
     transition: all 0.15s ease;
-    min-width: 40px;
-}
-
-.transcript-entry:hover .entry-timestamp {
-    background: #dbeafe;
-    transform: scale(1.05);
 }
 
 .active-entry .entry-timestamp {
-    background: #3b82f6;
-    color: #ffffff;
-    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+    background: var(--slds-g-color-brand-base-50, var(--lwc-brandPrimary, #0176d3));
+    color: var(--slds-g-color-neutral-base-10, #ffffff);
 }
 
 /* Entry Right - Content */
@@ -389,52 +429,69 @@
     min-width: 0;
 }
 
-/* Speaker Names with Color Coding */
+/* Speaker Names */
 .entry-speaker {
-    display: inline-block;
-    font-size: 0.75rem;
-    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
     margin-bottom: 0.25rem;
-    padding: 0.125rem 0.5rem;
-    border-radius: 4px;
+}
+
+.speaker-icon {
+    font-size: 0.875rem;
 }
 
 .speaker-bot {
-    color: #7c3aed;
-    background: #f5f3ff;
+    color: #0d9488;
+}
+
+.speaker-bot .speaker-icon::before {
+    content: '🤖';
 }
 
 .speaker-customer {
-    color: #059669;
-    background: #ecfdf5;
+    color: #64748b;
+}
+
+.speaker-customer .speaker-icon::before {
+    content: '👤';
 }
 
 .speaker-agent {
-    color: #0369a1;
-    background: #e0f2fe;
+    color: #6366f1;
+}
+
+.speaker-agent .speaker-icon::before {
+    content: '🎧';
 }
 
 /* Entry Text */
 .entry-text {
     font-size: 0.875rem;
-    line-height: 1.65;
+    line-height: 1.5;
     color: #334155;
 }
 
 .active-entry .entry-text {
     color: #1e293b;
-    font-weight: 500;
 }
 
 /* No Transcript State */
 .no-transcript {
+    padding: 2rem 1rem;
     color: #64748b;
     font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
-/* ==========================================
+/* =============================================================================
    RESPONSIVE ADJUSTMENTS
-   ========================================== */
+   ============================================================================= */
 @media (max-width: 768px) {
     .transcript-content {
         max-height: 300px;
@@ -442,36 +499,40 @@
     
     .recording-pills {
         flex-direction: column;
-        align-items: stretch;
     }
     
     .recording-pill {
-        justify-content: center;
+        justify-content: flex-start;
     }
     
-    .entry-left {
-        width: 40px;
+    .playback-controls-row {
+        flex-direction: column;
+        gap: 0.75rem;
     }
     
-    .entry-timestamp {
-        font-size: 0.625rem;
-        padding: 0.125rem 0.375rem;
-        min-width: 36px;
+    .speed-control {
+        order: -1;
     }
 }
 
-/* ==========================================
+/* =============================================================================
    ANIMATIONS
-   ========================================== */
-@keyframes pulse-highlight {
-    0% {
-        background: #bfdbfe;
+   ============================================================================= */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
     }
-    100% {
-        background: linear-gradient(90deg, #eff6ff 0%, #dbeafe 100%);
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
+}
+
+.transcript-entry {
+    animation: fade-in 0.2s ease;
 }
 
 .active-entry {
-    animation: pulse-highlight 0.4s ease;
+    animation: none;
 }

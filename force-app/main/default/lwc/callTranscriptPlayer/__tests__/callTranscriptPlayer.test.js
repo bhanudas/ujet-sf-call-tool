@@ -2,11 +2,19 @@ import { createElement } from 'lwc';
 import CallTranscriptPlayer from 'c/callTranscriptPlayer';
 import getTranscriptContent from '@salesforce/apex/VoicecallSessionController.getTranscriptContent';
 import parseTranscript from '@salesforce/apex/VoicecallSessionController.parseTranscript';
+import getAudioContent from '@salesforce/apex/VoicecallSessionController.getAudioContent';
 
 // Mock HTMLMediaElement methods
 window.HTMLMediaElement.prototype.load = jest.fn();
 window.HTMLMediaElement.prototype.play = jest.fn().mockResolvedValue(undefined);
 window.HTMLMediaElement.prototype.pause = jest.fn();
+
+// Mock URL.createObjectURL and URL.revokeObjectURL for blob URL handling
+global.URL.createObjectURL = jest.fn(() => 'blob:mock-url');
+global.URL.revokeObjectURL = jest.fn();
+
+// Mock atob for base64 decoding
+global.atob = jest.fn((str) => str);
 
 // Mock the Apex methods
 jest.mock(
@@ -17,6 +25,12 @@ jest.mock(
 
 jest.mock(
     '@salesforce/apex/VoicecallSessionController.parseTranscript',
+    () => ({ default: jest.fn() }),
+    { virtual: true }
+);
+
+jest.mock(
+    '@salesforce/apex/VoicecallSessionController.getAudioContent',
     () => ({ default: jest.fn() }),
     { virtual: true }
 );
@@ -63,6 +77,23 @@ describe('c-call-transcript-player', () => {
         }
     ];
 
+    const mockAudioContent = {
+        base64Data: 'ZmFrZSBhdWRpbyBjb250ZW50', // "fake audio content" in base64
+        contentType: 'audio/mpeg',
+        fileName: 'test_audio.mp3',
+        fileSize: 1024
+    };
+
+    // Helper function to setup component with documents and mocks
+    const setupComponentWithDocuments = async (element, docs = mockDocuments) => {
+        getTranscriptContent.mockResolvedValue('[10:00:00     Agent]     Hello');
+        parseTranscript.mockResolvedValue(mockTranscriptEntries);
+        getAudioContent.mockResolvedValue(mockAudioContent);
+        
+        element.documents = docs;
+        await flushPromises();
+    };
+
     describe('initial state', () => {
         it('creates component successfully', () => {
             const element = createElement('c-call-transcript-player', {
@@ -102,12 +133,7 @@ describe('c-call-transcript-player', () => {
             element.sessionId = 'session123';
             document.body.appendChild(element);
 
-            getTranscriptContent.mockResolvedValue('[10:00:00     Agent]     Hello');
-            parseTranscript.mockResolvedValue(mockTranscriptEntries);
-
-            element.documents = mockDocuments;
-
-            await flushPromises();
+            await setupComponentWithDocuments(element);
 
             expect(element.documents).toEqual(mockDocuments);
         });
@@ -147,14 +173,21 @@ describe('c-call-transcript-player', () => {
             element.sessionId = 'session123';
             document.body.appendChild(element);
 
-            getTranscriptContent.mockResolvedValue('[10:00:00     Agent]     Hello');
-            parseTranscript.mockResolvedValue(mockTranscriptEntries);
-
-            element.documents = mockDocuments;
-
-            await flushPromises();
+            await setupComponentWithDocuments(element);
 
             expect(getTranscriptContent).toHaveBeenCalledWith({ documentId: 'doc2' });
+        });
+
+        it('calls getAudioContent when documents have audio', async () => {
+            const element = createElement('c-call-transcript-player', {
+                is: CallTranscriptPlayer
+            });
+            element.sessionId = 'session123';
+            document.body.appendChild(element);
+
+            await setupComponentWithDocuments(element);
+
+            expect(getAudioContent).toHaveBeenCalledWith({ documentId: 'doc1' });
         });
 
         it('calls parseTranscript with correct parameters', async () => {
@@ -167,6 +200,7 @@ describe('c-call-transcript-player', () => {
             const content = '[10:30:00     Agent]     Hello there';
             getTranscriptContent.mockResolvedValue(content);
             parseTranscript.mockResolvedValue(mockTranscriptEntries);
+            getAudioContent.mockResolvedValue(mockAudioContent);
 
             element.documents = mockDocuments;
 
@@ -190,6 +224,7 @@ describe('c-call-transcript-player', () => {
             const content = 'Call ID: 123\n---\n[10:30:45     Agent]     Hello';
             getTranscriptContent.mockResolvedValue(content);
             parseTranscript.mockResolvedValue(mockTranscriptEntries);
+            getAudioContent.mockResolvedValue(mockAudioContent);
 
             element.documents = mockDocuments;
 
@@ -212,6 +247,7 @@ describe('c-call-transcript-player', () => {
             const content = 'No timestamp here';
             getTranscriptContent.mockResolvedValue(content);
             parseTranscript.mockResolvedValue([]);
+            getAudioContent.mockResolvedValue(mockAudioContent);
 
             element.documents = mockDocuments;
 
@@ -234,6 +270,47 @@ describe('c-call-transcript-player', () => {
             document.body.appendChild(element);
 
             getTranscriptContent.mockRejectedValue(new Error('Network error'));
+            getAudioContent.mockResolvedValue(mockAudioContent);
+
+            element.documents = mockDocuments;
+
+            await flushPromises();
+
+            // Component should not throw - verify it still renders
+            const container = element.shadowRoot.querySelector('.player-container');
+            expect(container).not.toBeNull();
+        });
+
+        it('handles audio loading error gracefully', async () => {
+            const element = createElement('c-call-transcript-player', {
+                is: CallTranscriptPlayer
+            });
+            element.sessionId = 'session123';
+            document.body.appendChild(element);
+
+            getTranscriptContent.mockResolvedValue('[10:00:00     Agent]     Hello');
+            parseTranscript.mockResolvedValue(mockTranscriptEntries);
+            getAudioContent.mockRejectedValue(new Error('Audio fetch error'));
+
+            element.documents = mockDocuments;
+
+            await flushPromises();
+
+            // Component should not throw - verify it still renders
+            const container = element.shadowRoot.querySelector('.player-container');
+            expect(container).not.toBeNull();
+        });
+
+        it('handles empty audio content gracefully', async () => {
+            const element = createElement('c-call-transcript-player', {
+                is: CallTranscriptPlayer
+            });
+            element.sessionId = 'session123';
+            document.body.appendChild(element);
+
+            getTranscriptContent.mockResolvedValue('[10:00:00     Agent]     Hello');
+            parseTranscript.mockResolvedValue(mockTranscriptEntries);
+            getAudioContent.mockResolvedValue({ base64Data: null });
 
             element.documents = mockDocuments;
 
@@ -246,19 +323,7 @@ describe('c-call-transcript-player', () => {
     });
 
     describe('DOM rendering', () => {
-        it('renders audio element', async () => {
-            const element = createElement('c-call-transcript-player', {
-                is: CallTranscriptPlayer
-            });
-            document.body.appendChild(element);
-
-            await flushPromises();
-
-            const audio = element.shadowRoot.querySelector('audio');
-            expect(audio).not.toBeNull();
-        });
-
-        it('renders player container', async () => {
+        it('renders player container always', async () => {
             const element = createElement('c-call-transcript-player', {
                 is: CallTranscriptPlayer
             });
@@ -270,171 +335,198 @@ describe('c-call-transcript-player', () => {
             expect(container).not.toBeNull();
         });
 
-        it('renders audio section', async () => {
+        it('renders audio element when recordings exist', async () => {
             const element = createElement('c-call-transcript-player', {
                 is: CallTranscriptPlayer
             });
+            element.sessionId = 'session123';
             document.body.appendChild(element);
 
-            await flushPromises();
+            await setupComponentWithDocuments(element);
+
+            const audio = element.shadowRoot.querySelector('audio');
+            expect(audio).not.toBeNull();
+        });
+
+        it('renders audio section when recordings exist', async () => {
+            const element = createElement('c-call-transcript-player', {
+                is: CallTranscriptPlayer
+            });
+            element.sessionId = 'session123';
+            document.body.appendChild(element);
+
+            await setupComponentWithDocuments(element);
 
             const audioSection = element.shadowRoot.querySelector('.audio-section');
             expect(audioSection).not.toBeNull();
         });
 
-        it('renders transcript section', async () => {
+        it('renders transcript section when recordings exist', async () => {
             const element = createElement('c-call-transcript-player', {
                 is: CallTranscriptPlayer
             });
+            element.sessionId = 'session123';
             document.body.appendChild(element);
 
-            await flushPromises();
+            await setupComponentWithDocuments(element);
 
             const transcriptSection = element.shadowRoot.querySelector('.transcript-section');
             expect(transcriptSection).not.toBeNull();
         });
 
-        it('renders progress bar wrapper', async () => {
+        it('renders progress bar wrapper when recordings exist', async () => {
             const element = createElement('c-call-transcript-player', {
                 is: CallTranscriptPlayer
             });
+            element.sessionId = 'session123';
             document.body.appendChild(element);
 
-            await flushPromises();
+            await setupComponentWithDocuments(element);
 
             const progressWrapper = element.shadowRoot.querySelector('.progress-bar-wrapper');
             expect(progressWrapper).not.toBeNull();
         });
 
-        it('renders progress bar', async () => {
+        it('renders progress bar when recordings exist', async () => {
             const element = createElement('c-call-transcript-player', {
                 is: CallTranscriptPlayer
             });
+            element.sessionId = 'session123';
             document.body.appendChild(element);
 
-            await flushPromises();
+            await setupComponentWithDocuments(element);
 
             const progressBar = element.shadowRoot.querySelector('.progress-bar');
             expect(progressBar).not.toBeNull();
         });
 
-        it('renders progress fill element', async () => {
+        it('renders progress fill element when recordings exist', async () => {
             const element = createElement('c-call-transcript-player', {
                 is: CallTranscriptPlayer
             });
+            element.sessionId = 'session123';
             document.body.appendChild(element);
 
-            await flushPromises();
+            await setupComponentWithDocuments(element);
 
             const progressFill = element.shadowRoot.querySelector('.progress-fill');
             expect(progressFill).not.toBeNull();
         });
 
-        it('renders time display', async () => {
+        it('renders time display when recordings exist', async () => {
             const element = createElement('c-call-transcript-player', {
                 is: CallTranscriptPlayer
             });
+            element.sessionId = 'session123';
             document.body.appendChild(element);
 
-            await flushPromises();
+            await setupComponentWithDocuments(element);
 
             const timeDisplay = element.shadowRoot.querySelector('.time-display');
             expect(timeDisplay).not.toBeNull();
         });
 
-        it('renders current time span with 0:00', async () => {
+        it('renders current time span with 0:00 when recordings exist', async () => {
             const element = createElement('c-call-transcript-player', {
                 is: CallTranscriptPlayer
             });
+            element.sessionId = 'session123';
             document.body.appendChild(element);
 
-            await flushPromises();
+            await setupComponentWithDocuments(element);
 
             const currentTime = element.shadowRoot.querySelector('.current-time');
             expect(currentTime).not.toBeNull();
             expect(currentTime.textContent).toBe('0:00');
         });
 
-        it('renders duration span with 0:00', async () => {
+        it('renders duration span with 0:00 when recordings exist', async () => {
             const element = createElement('c-call-transcript-player', {
                 is: CallTranscriptPlayer
             });
+            element.sessionId = 'session123';
             document.body.appendChild(element);
 
-            await flushPromises();
+            await setupComponentWithDocuments(element);
 
             const duration = element.shadowRoot.querySelector('.duration');
             expect(duration).not.toBeNull();
             expect(duration.textContent).toBe('0:00');
         });
 
-        it('renders speed control section', async () => {
+        it('renders speed control section when recordings exist', async () => {
             const element = createElement('c-call-transcript-player', {
                 is: CallTranscriptPlayer
             });
+            element.sessionId = 'session123';
             document.body.appendChild(element);
 
-            await flushPromises();
+            await setupComponentWithDocuments(element);
 
             const speedControl = element.shadowRoot.querySelector('.speed-control');
             expect(speedControl).not.toBeNull();
         });
 
-        it('renders audio title', async () => {
+        it('renders audio title when recordings exist', async () => {
             const element = createElement('c-call-transcript-player', {
                 is: CallTranscriptPlayer
             });
+            element.sessionId = 'session123';
             document.body.appendChild(element);
 
-            await flushPromises();
+            await setupComponentWithDocuments(element);
 
             const audioTitle = element.shadowRoot.querySelector('.audio-title');
             expect(audioTitle).not.toBeNull();
         });
 
-        it('renders transcript title', async () => {
+        it('renders transcript title when recordings exist', async () => {
             const element = createElement('c-call-transcript-player', {
                 is: CallTranscriptPlayer
             });
+            element.sessionId = 'session123';
             document.body.appendChild(element);
 
-            await flushPromises();
+            await setupComponentWithDocuments(element);
 
             const transcriptTitle = element.shadowRoot.querySelector('.transcript-title');
             expect(transcriptTitle).not.toBeNull();
         });
 
-        it('renders transcript header', async () => {
+        it('renders transcript header when recordings exist', async () => {
             const element = createElement('c-call-transcript-player', {
                 is: CallTranscriptPlayer
             });
+            element.sessionId = 'session123';
             document.body.appendChild(element);
 
-            await flushPromises();
+            await setupComponentWithDocuments(element);
 
             const transcriptHeader = element.shadowRoot.querySelector('.transcript-header');
             expect(transcriptHeader).not.toBeNull();
         });
 
-        it('renders playback controls section', async () => {
+        it('renders playback controls section when recordings exist', async () => {
             const element = createElement('c-call-transcript-player', {
                 is: CallTranscriptPlayer
             });
+            element.sessionId = 'session123';
             document.body.appendChild(element);
 
-            await flushPromises();
+            await setupComponentWithDocuments(element);
 
             const playbackControls = element.shadowRoot.querySelector('.playback-controls');
             expect(playbackControls).not.toBeNull();
         });
 
-        it('renders audio header', async () => {
+        it('renders audio header when recordings exist', async () => {
             const element = createElement('c-call-transcript-player', {
                 is: CallTranscriptPlayer
             });
+            element.sessionId = 'session123';
             document.body.appendChild(element);
 
-            await flushPromises();
+            await setupComponentWithDocuments(element);
 
             const audioHeader = element.shadowRoot.querySelector('.audio-header');
             expect(audioHeader).not.toBeNull();

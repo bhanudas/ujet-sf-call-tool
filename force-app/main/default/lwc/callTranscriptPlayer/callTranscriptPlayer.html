@@ -54,6 +54,22 @@
                     </template>
                 </div>
 
+                <!-- Audio Loading State -->
+                <template lwc:if={showAudioLoading}>
+                    <div class="audio-loading-section">
+                        <lightning-spinner alternative-text="Loading audio..." size="small"></lightning-spinner>
+                        <span class="audio-loading-text">Loading audio file...</span>
+                    </div>
+                </template>
+
+                <!-- Audio Error State -->
+                <template lwc:if={showAudioError}>
+                    <div class="audio-error-section">
+                        <lightning-icon icon-name="utility:error" size="small" variant="error"></lightning-icon>
+                        <span class="audio-error-text">{audioErrorMessage}</span>
+                    </div>
+                </template>
+
                 <!-- Progress Bar -->
                 <div class="audio-progress-container">
                     <div class="progress-bar-wrapper" onclick={handleProgressClick}>
@@ -76,6 +92,7 @@
                             alternative-text="Skip back 10 seconds"
                             title="Skip back 10s"
                             onclick={handleSkipBack}
+                            disabled={audioControlsDisabled}
                             size="medium">
                         </lightning-button-icon>
                         <div class="play-button">
@@ -84,7 +101,8 @@
                                 alternative-text={playPauseLabel}
                                 title={playPauseLabel}
                                 onclick={handlePlayPause}
-                                size="large">
+                                disabled={audioControlsDisabled}
+                                size="medium">
                             </lightning-button-icon>
                         </div>
                         <lightning-button-icon
@@ -92,6 +110,7 @@
                             alternative-text="Skip forward 10 seconds"
                             title="Skip forward 10s"
                             onclick={handleSkipForward}
+                            disabled={audioControlsDisabled}
                             size="medium">
                         </lightning-button-icon>
                     </div>
@@ -123,7 +142,6 @@
                     onloadedmetadata={handleLoadedMetadata}
                     onended={handleAudioEnded}
                     onerror={handleAudioError}>
-                    <source src={currentAudioUrl} type="audio/mpeg">
                 </audio>
             </div>
 

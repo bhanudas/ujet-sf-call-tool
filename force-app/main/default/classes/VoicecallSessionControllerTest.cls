@@ -189,6 +189,120 @@ private class VoicecallSessionControllerTest {
     }
     
     /**
+     * Test getAudioContent with valid MP3 document
+     */
+    @isTest
+    static void testGetAudioContent_ValidMP3Document() {
+        // Create test ContentVersion with MP3 audio
+        Blob testAudioBlob = Blob.valueOf('fake mp3 audio content');
+        ContentVersion cv = new ContentVersion(
+            Title = 'test_audio',
+            PathOnClient = 'test_audio.mp3',
+            VersionData = testAudioBlob
+        );
+        insert cv;
+        
+        // Get the ContentDocument Id
+        ContentVersion insertedCv = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id];
+        
+        Test.startTest();
+        VoicecallSessionController.AudioContentWrapper result = 
+            VoicecallSessionController.getAudioContent(insertedCv.ContentDocumentId);
+        Test.stopTest();
+        
+        System.assertNotEquals(null, result, 'Should return audio content wrapper');
+        System.assertNotEquals(null, result.base64Data, 'Should have base64 data');
+        System.assertEquals('audio/mpeg', result.contentType, 'Content type should be audio/mpeg for MP3');
+        System.assertEquals('test_audio', result.fileName, 'File name should match');
+        
+        // Verify base64 decodes back to original content
+        Blob decodedBlob = EncodingUtil.base64Decode(result.base64Data);
+        System.assertEquals(testAudioBlob.toString(), decodedBlob.toString(), 'Decoded content should match original');
+    }
+    
+    /**
+     * Test getAudioContent with WAV file
+     */
+    @isTest
+    static void testGetAudioContent_WAVFile() {
+        ContentVersion cv = new ContentVersion(
+            Title = 'test_audio_wav',
+            PathOnClient = 'test_audio.wav',
+            VersionData = Blob.valueOf('fake wav audio content')
+        );
+        insert cv;
+        
+        ContentVersion insertedCv = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id];
+        
+        Test.startTest();
+        VoicecallSessionController.AudioContentWrapper result = 
+            VoicecallSessionController.getAudioContent(insertedCv.ContentDocumentId);
+        Test.stopTest();
+        
+        System.assertEquals('audio/wav', result.contentType, 'Content type should be audio/wav');
+    }
+    
+    /**
+     * Test getAudioContent with M4A file
+     */
+    @isTest
+    static void testGetAudioContent_M4AFile() {
+        ContentVersion cv = new ContentVersion(
+            Title = 'test_audio_m4a',
+            PathOnClient = 'test_audio.m4a',
+            VersionData = Blob.valueOf('fake m4a audio content')
+        );
+        insert cv;
+        
+        ContentVersion insertedCv = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id];
+        
+        Test.startTest();
+        VoicecallSessionController.AudioContentWrapper result = 
+            VoicecallSessionController.getAudioContent(insertedCv.ContentDocumentId);
+        Test.stopTest();
+        
+        System.assertEquals('audio/mp4', result.contentType, 'Content type should be audio/mp4 for M4A');
+    }
+    
+    /**
+     * Test getAudioContent with invalid document ID throws exception
+     */
+    @isTest
+    static void testGetAudioContent_InvalidDocument() {
+        Boolean exceptionThrown = false;
+        Test.startTest();
+        try {
+            VoicecallSessionController.getAudioContent('069000000000000AAA');
+        } catch (Exception e) {
+            exceptionThrown = true;
+            System.assert(
+                e instanceof AuraHandledException || e.getMessage() != null,
+                'Should throw an exception for invalid document ID'
+            );
+        }
+        Test.stopTest();
+        System.assert(exceptionThrown, 'An exception should have been thrown');
+    }
+    
+    /**
+     * Test AudioContentWrapper class properties
+     */
+    @isTest
+    static void testAudioContentWrapper() {
+        VoicecallSessionController.AudioContentWrapper wrapper = 
+            new VoicecallSessionController.AudioContentWrapper();
+        wrapper.base64Data = 'dGVzdA==';
+        wrapper.contentType = 'audio/mpeg';
+        wrapper.fileName = 'test.mp3';
+        wrapper.fileSize = 1024;
+        
+        System.assertEquals('dGVzdA==', wrapper.base64Data);
+        System.assertEquals('audio/mpeg', wrapper.contentType);
+        System.assertEquals('test.mp3', wrapper.fileName);
+        System.assertEquals(1024, wrapper.fileSize);
+    }
+    
+    /**
      * Test getVoicecallSessions with no sessions
      */
     @isTest

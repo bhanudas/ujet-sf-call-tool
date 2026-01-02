@@ -281,6 +281,41 @@
     display: none;
 }
 
+/* Audio Loading State */
+.audio-loading-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--slds-g-color-neutral-base-90, #f3f3f3);
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+}
+
+.audio-loading-text {
+    font-size: 0.8125rem;
+    color: var(--slds-g-color-neutral-base-30, #444444);
+}
+
+/* Audio Error State */
+.audio-error-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--slds-g-color-error-container-1, #fef2f2);
+    border: 1px solid var(--slds-g-color-error-base-40, #fca5a5);
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+}
+
+.audio-error-text {
+    font-size: 0.8125rem;
+    color: var(--slds-g-color-error-base-30, #b91c1c);
+}
+
 /* =============================================================================
    TRANSCRIPT SECTION
    ============================================================================= */

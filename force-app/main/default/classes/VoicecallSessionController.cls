@@ -171,6 +171,60 @@ public with sharing class VoicecallSessionController {
     }
     
     /**
+     * Wrapper class for audio content response
+     */
+    public class AudioContentWrapper {
+        @AuraEnabled public String base64Data { get; set; }
+        @AuraEnabled public String contentType { get; set; }
+        @AuraEnabled public String fileName { get; set; }
+        @AuraEnabled public Integer fileSize { get; set; }
+    }
+    
+    /**
+     * Get audio file content as base64 by ContentDocument Id
+     * This method provides a secure way to fetch audio content for Platform license users
+     * who may not have direct access to the /sfc/servlet.shepherd/ endpoint.
+     * @param documentId The ContentDocument Id
+     * @return AudioContentWrapper containing base64-encoded audio data
+     */
+    @AuraEnabled
+    public static AudioContentWrapper getAudioContent(String documentId) {
+        try {
+            ContentVersion cv = [
+                SELECT VersionData, ContentDocumentId, Title, FileType, ContentSize
+                FROM ContentVersion
+                WHERE ContentDocumentId = :documentId
+                AND IsLatest = true
+                LIMIT 1
+            ];
+            
+            AudioContentWrapper wrapper = new AudioContentWrapper();
+            wrapper.base64Data = EncodingUtil.base64Encode(cv.VersionData);
+            wrapper.fileName = cv.Title;
+            wrapper.fileSize = cv.ContentSize;
+            
+            // Determine content type based on file extension
+            String fileType = cv.FileType != null ? cv.FileType.toUpperCase() : '';
+            if (fileType == 'MP3') {
+                wrapper.contentType = 'audio/mpeg';
+            } else if (fileType == 'WAV') {
+                wrapper.contentType = 'audio/wav';
+            } else if (fileType == 'M4A') {
+                wrapper.contentType = 'audio/mp4';
+            } else if (fileType == 'OGG') {
+                wrapper.contentType = 'audio/ogg';
+            } else {
+                // Default to audio/mpeg for unknown types
+                wrapper.contentType = 'audio/mpeg';
+            }
+            
+            return wrapper;
+        } catch (Exception e) {
+            throw new AuraHandledException('Error retrieving audio content: ' + e.getMessage());
+        }
+    }
+    
+    /**
      * Parse transcript content into structured entries with timing
      * @param transcriptContent The raw transcript text
      * @param recordingStartTime The time the recording started (from call metadata)

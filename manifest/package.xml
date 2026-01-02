@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>VoicecallSessionController</members>
+        <members>VoicecallSessionControllerTest</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>callTranscriptPlayer</members>
+        <members>loggerService</members>
+        <members>voicecallSessionPlayer</members>
+        <name>LightningComponentBundle</name>
+    </types>
+    <types>
+        <members>Voice_Call_Reviewer</members>
+        <members>Voice_Call_Reviewer_Platform</members>
+        <name>PermissionSet</name>
+    </types>
+    <version>59.0</version>
+</Package>
+

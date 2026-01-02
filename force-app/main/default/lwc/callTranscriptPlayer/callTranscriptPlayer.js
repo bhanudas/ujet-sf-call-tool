@@ -9,6 +9,7 @@ const log = Logger.create('CallTranscriptPlayer');
 export default class CallTranscriptPlayer extends LightningElement {
     @api sessionId;
     @api audioUrl;
+    @api agentName;
     
     _documents = [];
     _documentsProcessed = false;
@@ -488,6 +489,20 @@ export default class CallTranscriptPlayer extends LightningElement {
         return rec ? `${rec.icon} ${rec.label}` : 'Call Recording';
     }
 
+    get currentRecordingTitleClean() {
+        const rec = this.recordings.find(r => r.id === this.selectedRecordingId);
+        return rec ? rec.label : 'Call Recording';
+    }
+
+    get showAgentName() {
+        const rec = this.recordings.find(r => r.id === this.selectedRecordingId);
+        return rec && rec.type === 'agent' && this.agentName;
+    }
+
+    get agentNameDisplay() {
+        return this.agentName || '';
+    }
+
     get currentAudioUrl() {
         const rec = this.recordings.find(r => r.id === this.selectedRecordingId);
         return rec ? rec.audioUrl : this.audioUrl;
@@ -535,12 +550,28 @@ export default class CallTranscriptPlayer extends LightningElement {
         return this.playbackSpeed === 2 ? 'brand' : 'neutral';
     }
 
+    get speed05Class() {
+        return this.playbackSpeed === 0.5 ? 'speed-button active' : 'speed-button';
+    }
+
+    get speed1Class() {
+        return this.playbackSpeed === 1 ? 'speed-button active' : 'speed-button';
+    }
+
+    get speed15Class() {
+        return this.playbackSpeed === 1.5 ? 'speed-button active' : 'speed-button';
+    }
+
+    get speed2Class() {
+        return this.playbackSpeed === 2 ? 'speed-button active' : 'speed-button';
+    }
+
     get autoScrollIcon() {
-        return this.autoScroll ? 'utility:lock' : 'utility:unlock';
+        return this.autoScroll ? 'utility:pin' : 'utility:pinned';
     }
 
     get autoScrollTitle() {
-        return this.autoScroll ? 'Auto-scroll enabled (click to disable)' : 'Auto-scroll disabled (click to enable)';
+        return this.autoScroll ? 'Following transcript (click to stop)' : 'Click to follow transcript';
     }
 
     get autoScrollVariant() {

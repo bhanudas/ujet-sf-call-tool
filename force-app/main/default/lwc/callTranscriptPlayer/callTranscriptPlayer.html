@@ -2,38 +2,30 @@
     <div class="player-container" data-version={componentVersion}>
         <!-- Loading State -->
         <template lwc:if={isLoadingRecordings}>
-            <div class="loading-section slds-p-around_large slds-align_absolute-center">
+            <div class="loading-section">
                 <lightning-spinner alternative-text="Loading recordings..." size="medium"></lightning-spinner>
             </div>
         </template>
 
         <!-- No Recordings Available -->
         <template lwc:if={noRecordingsAvailable}>
-            <div class="no-recordings-section slds-p-around_medium">
-                <div class="slds-illustration slds-illustration_small slds-align_absolute-center">
-                    <div class="no-recordings-content">
-                        <lightning-icon icon-name="utility:volume_off" size="large" class="no-recordings-icon"></lightning-icon>
-                        <h3 class="slds-text-heading_small slds-m-top_medium no-recordings-title">No Recordings Available</h3>
-                        <p class="slds-text-body_regular slds-m-top_x-small no-recordings-text">
-                            There are no audio recordings or transcripts attached to this session.
-                        </p>
-                    </div>
+            <div class="no-recordings-section">
+                <div class="no-recordings-content">
+                    <lightning-icon icon-name="utility:volume_off" size="large" class="no-recordings-icon"></lightning-icon>
+                    <h3 class="no-recordings-title">No Recordings Available</h3>
+                    <p class="no-recordings-text">
+                        There are no audio recordings or transcripts attached to this session.
+                    </p>
                 </div>
             </div>
         </template>
 
         <!-- Has Recordings - Show Player -->
         <template lwc:if={hasRecordings}>
-            <!-- Recording Navigator -->
+            <!-- Recording Navigator (Tab Pills) -->
             <template lwc:if={hasMultipleRecordings}>
-                <div class="recording-navigator slds-m-bottom_small">
-                    <div class="navigator-header slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
-                        <span class="recording-count">
-                            <lightning-icon icon-name="utility:layers" size="x-small" class="slds-m-right_xx-small"></lightning-icon>
-                            {recordingCountLabel}
-                        </span>
-                    </div>
-                    <div class="recording-pills slds-grid slds-wrap slds-grid_align-center slds-m-top_x-small">
+                <div class="recording-navigator">
+                    <div class="recording-pills">
                         <template for:each={recordings} for:item="recording">
                             <button 
                                 key={recording.id}
@@ -50,161 +42,160 @@
             </template>
 
             <!-- Audio Player Section -->
-            <div class="audio-section slds-p-around_small slds-box slds-box_x-small">
-            <div class="audio-header slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small">
-                <h3 class="slds-text-heading_small audio-title">
-                    <lightning-icon icon-name="utility:volume_high" size="small" class="slds-m-right_x-small"></lightning-icon>
-                    {currentRecordingTitle}
-                </h3>
-                <div class="playback-controls">
-                    <lightning-button-icon
-                        icon-name="utility:rewind"
-                        alternative-text="Skip back 10 seconds"
-                        title="Skip back 10s"
-                        onclick={handleSkipBack}
-                        class="slds-m-right_xx-small">
-                    </lightning-button-icon>
-                    <lightning-button-icon
-                        icon-name={playPauseIcon}
-                        alternative-text={playPauseLabel}
-                        title={playPauseLabel}
-                        onclick={handlePlayPause}
-                        variant="brand"
-                        size="medium">
-                    </lightning-button-icon>
-                    <lightning-button-icon
-                        icon-name="utility:forward"
-                        alternative-text="Skip forward 10 seconds"
-                        title="Skip forward 10s"
-                        onclick={handleSkipForward}
-                        class="slds-m-left_xx-small">
-                    </lightning-button-icon>
+            <div class="audio-section">
+                <!-- Header: Title + Agent Name -->
+                <div class="audio-header">
+                    <h3 class="audio-title">
+                        <span class="audio-title-indicator"></span>
+                        {currentRecordingTitleClean}
+                    </h3>
+                    <template lwc:if={showAgentName}>
+                        <span class="agent-name-display">Agent: {agentNameDisplay}</span>
+                    </template>
                 </div>
-            </div>
 
-            <!-- Custom Audio Progress Bar -->
-            <div class="audio-progress-container">
-                <div class="time-display slds-grid slds-grid_align-spread slds-m-bottom_xx-small">
-                    <span class="current-time">{currentTimeDisplay}</span>
-                    <span class="duration">{durationDisplay}</span>
-                </div>
-                <div class="progress-bar-wrapper" onclick={handleProgressClick}>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style={progressStyle}></div>
-                        <div class="progress-handle" style={handleStyle}></div>
+                <!-- Progress Bar -->
+                <div class="audio-progress-container">
+                    <div class="progress-bar-wrapper" onclick={handleProgressClick}>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style={progressStyle}></div>
+                            <div class="progress-handle" style={handleStyle}></div>
+                        </div>
+                    </div>
+                    <div class="time-display">
+                        <span class="current-time">{currentTimeDisplay}</span>
+                        <span class="duration">{durationDisplay}</span>
                     </div>
                 </div>
-            </div>
 
-            <!-- Playback Speed -->
-            <div class="speed-control slds-m-top_small slds-grid slds-grid_align-center">
-                <lightning-button-group>
-                    <lightning-button 
-                        label="0.5x" 
-                        variant={speed05Variant}
-                        onclick={handleSpeedChange}
-                        data-speed="0.5">
-                    </lightning-button>
-                    <lightning-button 
-                        label="1x" 
-                        variant={speed1Variant}
-                        onclick={handleSpeedChange}
-                        data-speed="1">
-                    </lightning-button>
-                    <lightning-button 
-                        label="1.5x" 
-                        variant={speed15Variant}
-                        onclick={handleSpeedChange}
-                        data-speed="1.5">
-                    </lightning-button>
-                    <lightning-button 
-                        label="2x" 
-                        variant={speed2Variant}
-                        onclick={handleSpeedChange}
-                        data-speed="2">
-                    </lightning-button>
-                </lightning-button-group>
-            </div>
-
-            <!-- Hidden HTML5 Audio Element -->
-            <audio 
-                class="hidden-audio"
-                ontimeupdate={handleTimeUpdate}
-                onloadedmetadata={handleLoadedMetadata}
-                onended={handleAudioEnded}
-                onerror={handleAudioError}>
-                <source src={currentAudioUrl} type="audio/mpeg">
-            </audio>
-        </div>
-
-        <!-- Transcript Section -->
-        <div class="transcript-section slds-m-top_small">
-            <div class="transcript-header slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-p-around_small">
-                <h3 class="slds-text-heading_small transcript-title">
-                    <lightning-icon icon-name="utility:text" size="small" class="slds-m-right_x-small"></lightning-icon>
-                    Transcript
-                    <template lwc:if={hasTranscript}>
-                        <span class="transcript-hint">(click any line to jump)</span>
-                    </template>
-                </h3>
-                <div class="transcript-actions">
-                    <lightning-button-icon
-                        icon-name="utility:download"
-                        alternative-text="Download transcript"
-                        title="Download transcript"
-                        onclick={handleDownloadTranscript}
-                        class="slds-m-right_x-small">
-                    </lightning-button-icon>
-                    <lightning-button-icon
-                        icon-name={autoScrollIcon}
-                        alternative-text="Toggle auto-scroll"
-                        title={autoScrollTitle}
-                        onclick={handleToggleAutoScroll}
-                        variant={autoScrollVariant}>
-                    </lightning-button-icon>
-                </div>
-            </div>
-
-            <!-- Loading Transcript -->
-            <template lwc:if={isLoadingTranscript}>
-                <div class="slds-align_absolute-center slds-p-around_medium">
-                    <lightning-spinner alternative-text="Loading transcript..." size="small"></lightning-spinner>
-                </div>
-            </template>
-
-            <!-- Transcript Content -->
-            <template lwc:if={hasTranscript}>
-                <div class="transcript-content" data-id="transcriptContainer">
-                    <template for:each={transcriptEntries} for:item="entry">
-                        <div 
-                            key={entry.entryIndex}
-                            class={entry.entryClass}
-                            data-index={entry.entryIndex}
-                            data-seconds={entry.seconds}
-                            onclick={handleTranscriptClick}>
-                            
-                            <div class="entry-left">
-                                <span class="entry-timestamp" title="Click to jump to this time">
-                                    {entry.displayTime}
-                                </span>
-                            </div>
-                            <div class="entry-right">
-                                <span class={entry.speakerClass}>{entry.speaker}</span>
-                                <div class="entry-text">{entry.text}</div>
-                            </div>
+                <!-- Controls Row: Play Controls + Speed -->
+                <div class="playback-controls-row">
+                    <div class="playback-controls">
+                        <lightning-button-icon
+                            icon-name="utility:jump_to_left"
+                            alternative-text="Skip back 10 seconds"
+                            title="Skip back 10s"
+                            onclick={handleSkipBack}
+                            size="medium">
+                        </lightning-button-icon>
+                        <div class="play-button">
+                            <lightning-button-icon
+                                icon-name={playPauseIcon}
+                                alternative-text={playPauseLabel}
+                                title={playPauseLabel}
+                                onclick={handlePlayPause}
+                                size="large">
+                            </lightning-button-icon>
                         </div>
-                    </template>
-                </div>
-            </template>
+                        <lightning-button-icon
+                            icon-name="utility:jump_to_right"
+                            alternative-text="Skip forward 10 seconds"
+                            title="Skip forward 10s"
+                            onclick={handleSkipForward}
+                            size="medium">
+                        </lightning-button-icon>
+                    </div>
 
-            <!-- No Transcript Available -->
-            <template lwc:if={noTranscriptAvailable}>
-                <div class="slds-p-around_medium slds-align_absolute-center no-transcript">
-                    <lightning-icon icon-name="utility:info" size="small" class="slds-m-right_x-small"></lightning-icon>
-                    <span>No transcript available for this recording</span>
+                    <div class="speed-control">
+                        <button 
+                            class={speed05Class}
+                            data-speed="0.5"
+                            onclick={handleSpeedChange}>0.5x</button>
+                        <button 
+                            class={speed1Class}
+                            data-speed="1"
+                            onclick={handleSpeedChange}>1x</button>
+                        <button 
+                            class={speed15Class}
+                            data-speed="1.5"
+                            onclick={handleSpeedChange}>1.5x</button>
+                        <button 
+                            class={speed2Class}
+                            data-speed="2"
+                            onclick={handleSpeedChange}>2x</button>
+                    </div>
                 </div>
-            </template>
-        </div>
+
+                <!-- Hidden HTML5 Audio Element -->
+                <audio 
+                    class="hidden-audio"
+                    ontimeupdate={handleTimeUpdate}
+                    onloadedmetadata={handleLoadedMetadata}
+                    onended={handleAudioEnded}
+                    onerror={handleAudioError}>
+                    <source src={currentAudioUrl} type="audio/mpeg">
+                </audio>
+            </div>
+
+            <!-- Transcript Section -->
+            <div class="transcript-section">
+                <div class="transcript-header">
+                    <h3 class="transcript-title">
+                        Transcript
+                        <template lwc:if={hasTranscript}>
+                            <span class="transcript-hint">click to jump</span>
+                            <span class="beta-badge">Beta</span>
+                        </template>
+                    </h3>
+                    <div class="transcript-actions">
+                        <lightning-button-icon
+                            icon-name="utility:download"
+                            alternative-text="Download transcript"
+                            title="Download transcript"
+                            onclick={handleDownloadTranscript}>
+                        </lightning-button-icon>
+                        <lightning-button-icon
+                            icon-name={autoScrollIcon}
+                            alternative-text="Toggle auto-scroll"
+                            title={autoScrollTitle}
+                            onclick={handleToggleAutoScroll}>
+                        </lightning-button-icon>
+                    </div>
+                </div>
+
+                <!-- Loading Transcript -->
+                <template lwc:if={isLoadingTranscript}>
+                    <div class="loading-section" style="min-height: 120px;">
+                        <lightning-spinner alternative-text="Loading transcript..." size="small"></lightning-spinner>
+                    </div>
+                </template>
+
+                <!-- Transcript Content -->
+                <template lwc:if={hasTranscript}>
+                    <div class="transcript-content" data-id="transcriptContainer">
+                        <template for:each={transcriptEntries} for:item="entry">
+                            <div 
+                                key={entry.entryIndex}
+                                class={entry.entryClass}
+                                data-index={entry.entryIndex}
+                                data-seconds={entry.seconds}
+                                onclick={handleTranscriptClick}>
+                                
+                                <div class="entry-left">
+                                    <span class="entry-timestamp">
+                                        {entry.displayTime}
+                                    </span>
+                                </div>
+                                <div class="entry-right">
+                                    <div class={entry.speakerClass}>
+                                        <span class="speaker-icon"></span>
+                                        {entry.speaker}
+                                    </div>
+                                    <div class="entry-text">{entry.text}</div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- No Transcript Available -->
+                <template lwc:if={noTranscriptAvailable}>
+                    <div class="no-transcript">
+                        <lightning-icon icon-name="utility:info" size="small"></lightning-icon>
+                        <span>No transcript available for this recording</span>
+                    </div>
+                </template>
+            </div>
         </template>
     </div>
 </template>

@@ -52,7 +52,7 @@ export default class VoicecallSessionPlayer extends LightningElement {
                 ...session,
                 formattedDate,
                 formattedDuration,
-                accordionLabel: `Call ${index + 1} - ${formattedDate} (${formattedDuration})`,
+                accordionLabel: `Call ${index + 1} • ${formattedDate} • ${formattedDuration}`,
                 agentName: session.agentName || 'Unknown Agent',
                 callType: session.callType || 'Voice Call'
             };
@@ -96,6 +96,10 @@ export default class VoicecallSessionPlayer extends LightningElement {
 
     get hasCalls() {
         return !this.isLoading && !this.error && this.sessions.length > 0;
+    }
+
+    get sessionCount() {
+        return this.sessions.length;
     }
 
     get errorMessage() {

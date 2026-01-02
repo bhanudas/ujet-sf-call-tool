@@ -1,32 +1,56 @@
 <template>
     <div class="player-container" data-version={componentVersion}>
-        <!-- Recording Navigator -->
-        <template lwc:if={hasMultipleRecordings}>
-            <div class="recording-navigator slds-m-bottom_small">
-                <div class="navigator-header slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
-                    <span class="recording-count">
-                        <lightning-icon icon-name="utility:layers" size="x-small" class="slds-m-right_xx-small"></lightning-icon>
-                        {recordingCountLabel}
-                    </span>
-                </div>
-                <div class="recording-pills slds-grid slds-wrap slds-grid_align-center slds-m-top_x-small">
-                    <template for:each={recordings} for:item="recording">
-                        <button 
-                            key={recording.id}
-                            class={recording.pillClass}
-                            data-id={recording.id}
-                            onclick={handleRecordingSelect}>
-                            <span class="pill-icon">{recording.icon}</span>
-                            <span class="pill-label">{recording.label}</span>
-                            <span class="pill-duration">{recording.durationDisplay}</span>
-                        </button>
-                    </template>
+        <!-- Loading State -->
+        <template lwc:if={isLoadingRecordings}>
+            <div class="loading-section slds-p-around_large slds-align_absolute-center">
+                <lightning-spinner alternative-text="Loading recordings..." size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <!-- No Recordings Available -->
+        <template lwc:if={noRecordingsAvailable}>
+            <div class="no-recordings-section slds-p-around_medium">
+                <div class="slds-illustration slds-illustration_small slds-align_absolute-center">
+                    <div class="no-recordings-content">
+                        <lightning-icon icon-name="utility:volume_off" size="large" class="no-recordings-icon"></lightning-icon>
+                        <h3 class="slds-text-heading_small slds-m-top_medium no-recordings-title">No Recordings Available</h3>
+                        <p class="slds-text-body_regular slds-m-top_x-small no-recordings-text">
+                            There are no audio recordings or transcripts attached to this session.
+                        </p>
+                    </div>
                 </div>
             </div>
         </template>
 
-        <!-- Audio Player Section -->
-        <div class="audio-section slds-p-around_small slds-box slds-box_x-small">
+        <!-- Has Recordings - Show Player -->
+        <template lwc:if={hasRecordings}>
+            <!-- Recording Navigator -->
+            <template lwc:if={hasMultipleRecordings}>
+                <div class="recording-navigator slds-m-bottom_small">
+                    <div class="navigator-header slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                        <span class="recording-count">
+                            <lightning-icon icon-name="utility:layers" size="x-small" class="slds-m-right_xx-small"></lightning-icon>
+                            {recordingCountLabel}
+                        </span>
+                    </div>
+                    <div class="recording-pills slds-grid slds-wrap slds-grid_align-center slds-m-top_x-small">
+                        <template for:each={recordings} for:item="recording">
+                            <button 
+                                key={recording.id}
+                                class={recording.pillClass}
+                                data-id={recording.id}
+                                onclick={handleRecordingSelect}>
+                                <span class="pill-icon">{recording.icon}</span>
+                                <span class="pill-label">{recording.label}</span>
+                                <span class="pill-duration">{recording.durationDisplay}</span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Audio Player Section -->
+            <div class="audio-section slds-p-around_small slds-box slds-box_x-small">
             <div class="audio-header slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small">
                 <h3 class="slds-text-heading_small audio-title">
                     <lightning-icon icon-name="utility:volume_high" size="small" class="slds-m-right_x-small"></lightning-icon>
@@ -181,5 +205,6 @@
                 </div>
             </template>
         </div>
+        </template>
     </div>
 </template>

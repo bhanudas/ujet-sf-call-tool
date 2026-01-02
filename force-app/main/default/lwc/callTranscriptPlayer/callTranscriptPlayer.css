@@ -4,6 +4,48 @@
 }
 
 /* ==========================================
+   LOADING & EMPTY STATES
+   ========================================== */
+.loading-section {
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.no-recordings-section {
+    min-height: 180px;
+    background: linear-gradient(145deg, #fefce8 0%, #fef9c3 100%);
+    border-radius: 12px;
+    border: 1px solid #fde68a;
+}
+
+.no-recordings-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1rem;
+}
+
+.no-recordings-icon {
+    --slds-c-icon-color-foreground-default: #d97706;
+}
+
+.no-recordings-title {
+    color: #92400e;
+    font-weight: 600;
+}
+
+.no-recordings-text {
+    color: #a16207;
+    max-width: 280px;
+}
+
+/* ==========================================
    RECORDING NAVIGATOR
    ========================================== */
 .recording-navigator {

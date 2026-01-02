@@ -1,6 +1,10 @@
 import { LightningElement, api, track } from 'lwc';
 import getTranscriptContent from '@salesforce/apex/VoicecallSessionController.getTranscriptContent';
 import parseTranscript from '@salesforce/apex/VoicecallSessionController.parseTranscript';
+import Logger from 'c/loggerService';
+
+// Initialize component logger
+const log = Logger.create('CallTranscriptPlayer');
 
 export default class CallTranscriptPlayer extends LightningElement {
     @api sessionId;
@@ -16,7 +20,7 @@ export default class CallTranscriptPlayer extends LightningElement {
     set documents(value) {
         this._documents = value || [];
         // Process documents whenever they're set/updated
-        if (this._documents.length > 0 && !this._documentsProcessed) {
+        if (!this._documentsProcessed) {
             this._documentsProcessed = true;
             this.processDocuments();
         }
@@ -24,9 +28,10 @@ export default class CallTranscriptPlayer extends LightningElement {
 
     @track recordings = [];
     @track selectedRecordingId = null;
-    componentVersion = 'v3'; // Version marker for debugging
+    componentVersion = 'v4'; // Version marker for debugging
     @track transcriptEntries = [];
     @track isLoadingTranscript = true;
+    @track isLoadingRecordings = true;
     @track currentTime = 0;
     @track duration = 0;
     @track isPlaying = false;
@@ -47,13 +52,20 @@ export default class CallTranscriptPlayer extends LightningElement {
      * Process documents to identify recordings and pair with transcripts
      */
     processDocuments() {
+        log.group('Processing Documents');
+        log.time('documentProcessing');
+
         if (!this._documents || this._documents.length === 0) {
+            log.info('No documents to process');
+            this.isLoadingRecordings = false;
             this.isLoadingTranscript = false;
+            log.groupEnd();
             return;
         }
 
         // Get all documents from the internal array
         const allDocs = [...this._documents];
+        log.debug('Documents received', { count: allDocs.length, documents: allDocs });
         
         // Separate audio files
         const audioFiles = allDocs.filter(doc => {
@@ -128,12 +140,26 @@ export default class CallTranscriptPlayer extends LightningElement {
             }));
         }
 
+        // Mark recordings as loaded
+        this.isLoadingRecordings = false;
+
+        log.timeEnd('documentProcessing');
+        log.table('Recordings Found', this.recordings.map(r => ({
+            type: r.type,
+            label: r.label,
+            hasTranscript: !!r.transcriptDoc
+        })));
+
         // Select first recording by default
         if (this.recordings.length > 0) {
+            log.info('Auto-selecting first recording', { id: this.recordings[0].id });
             this.selectRecording(this.recordings[0].id);
         } else {
+            log.warn('No audio recordings found in documents');
             this.isLoadingTranscript = false;
         }
+        
+        log.groupEnd();
     }
 
     /**
@@ -187,12 +213,17 @@ export default class CallTranscriptPlayer extends LightningElement {
      */
     async loadTranscript(documentId) {
         this.isLoadingTranscript = true;
+        log.group('Loading Transcript');
+        log.time('transcriptLoad');
+        log.debug('Fetching transcript', { documentId });
         
         try {
             const content = await getTranscriptContent({ documentId });
 
             if (content) {
+                log.debug('Transcript content received', { length: content.length });
                 this.recordingStartTime = this.extractStartTime(content);
+                log.debug('Extracted start time', { startTime: this.recordingStartTime });
                 
                 const entries = await parseTranscript({ 
                     transcriptContent: content,
@@ -205,11 +236,17 @@ export default class CallTranscriptPlayer extends LightningElement {
                     entryClass: this.getEntryClass(entry.entryIndex, false),
                     speakerClass: this.getSpeakerClass(entry.speaker)
                 }));
+
+                log.success('Transcript parsed', { entryCount: this.transcriptEntries.length });
+            } else {
+                log.warn('Transcript content is empty');
             }
         } catch (err) {
-            // Error handled silently - transcript will show as unavailable
+            log.error('Failed to load transcript', err);
             this.transcriptEntries = [];
         } finally {
+            log.timeEnd('transcriptLoad');
+            log.groupEnd();
             this.isLoadingTranscript = false;
         }
     }
@@ -430,6 +467,14 @@ export default class CallTranscriptPlayer extends LightningElement {
     }
 
     // Computed properties
+    get hasRecordings() {
+        return !this.isLoadingRecordings && this.recordings.length > 0;
+    }
+
+    get noRecordingsAvailable() {
+        return !this.isLoadingRecordings && this.recordings.length === 0;
+    }
+
     get hasMultipleRecordings() {
         return this.recordings.length > 1;
     }

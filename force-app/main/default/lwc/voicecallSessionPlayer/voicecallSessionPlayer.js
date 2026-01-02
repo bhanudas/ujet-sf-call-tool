@@ -1,5 +1,9 @@
 import { LightningElement, api, wire, track } from 'lwc';
 import getVoicecallSessions from '@salesforce/apex/VoicecallSessionController.getVoicecallSessions';
+import Logger from 'c/loggerService';
+
+// Initialize component logger
+const log = Logger.create('VoicecallSessionPlayer');
 
 export default class VoicecallSessionPlayer extends LightningElement {
     @api recordId; // Case record Id from the record page
@@ -15,16 +19,22 @@ export default class VoicecallSessionPlayer extends LightningElement {
     @wire(getVoicecallSessions, { caseId: '$recordId' })
     wiredSessions({ error, data }) {
         this.isLoading = false;
+        log.lifecycle('wire', { caseId: this.recordId });
         
         if (data) {
+            log.apex('getVoicecallSessions', { caseId: this.recordId }, data);
             this.sessions = this.processSessionData(data);
             this.error = undefined;
+            
+            log.success(`Loaded ${this.sessions.length} session(s)`);
             
             // Auto-expand first session if there's only one
             if (this.sessions.length === 1) {
                 this.activeSections = [this.sessions[0].sessionId];
+                log.debug('Auto-expanded single session');
             }
         } else if (error) {
+            log.error('Failed to load sessions', error);
             this.error = error;
             this.sessions = [];
         }

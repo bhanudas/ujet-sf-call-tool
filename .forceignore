@@ -1,3 +1,167 @@
-**/jsconfig.json
+# =============================================================================
+# .forceignore - Salesforce DX Source Ignore File
+# =============================================================================
+# This file specifies intentionally untracked files that Salesforce CLI
+# should ignore during push, pull, and deploy operations.
+# Uses glob patterns similar to .gitignore
+# =============================================================================
 
+# -----------------------------------------------------------------------------
+# IDE & Editor Configuration
+# -----------------------------------------------------------------------------
 **/.eslintrc.json
+**/jsconfig.json
+**/.prettierrc
+**/.prettierignore
+**/.editorconfig
+
+# -----------------------------------------------------------------------------
+# LWC Development & Testing
+# -----------------------------------------------------------------------------
+# Jest test files (not deployable to Salesforce)
+**/__tests__/**
+**/*.test.js
+**/*.spec.js
+
+# LWC documentation files
+**/lwc/**/README.md
+**/lwc/**/*.md
+
+# LWC snapshots
+**/__snapshots__/**
+
+# -----------------------------------------------------------------------------
+# Salesforce CLI & Local Development
+# -----------------------------------------------------------------------------
+# SFDX local config and cache
+**/.sfdx/**
+**/.sf/**
+**/.localdevserver/**
+
+# Package files (regenerated during package creation)
+**/package2-descriptor.json
+**/package2-manifest.json
+
+# Scratch org config backups
+**/config/project-scratch-def.json.bak
+
+# -----------------------------------------------------------------------------
+# Org-Specific Metadata (usually org-specific, not version controlled)
+# -----------------------------------------------------------------------------
+# User-specific settings
+**/settings/Account.settings-meta.xml
+**/settings/Activities.settings-meta.xml
+**/settings/Security.settings-meta.xml
+
+# Profiles (often too org-specific; use permission sets instead)
+# Uncomment if you don't want to track profiles:
+# **/profiles/**
+
+# Admin profile is often problematic
+**/profiles/Admin.profile-meta.xml
+
+# Standard apps that vary by org
+**/applications/standard__*.app-meta.xml
+
+# -----------------------------------------------------------------------------
+# Managed Package Metadata
+# -----------------------------------------------------------------------------
+# Ignore metadata from managed packages (namespace prefixed)
+# Uncomment and adjust namespace as needed:
+# **/UJET__*
+
+# -----------------------------------------------------------------------------
+# Auto-Generated Files
+# -----------------------------------------------------------------------------
+# Object translations (often auto-generated)
+**/objectTranslations/**
+
+# Standard value set translations
+**/standardValueSetTranslations/**
+
+# Bot versions (auto-generated IDs)
+**/bots/**/*-v*.botVersion-meta.xml
+
+# -----------------------------------------------------------------------------
+# Large Binary Files (consider using Git LFS instead)
+# -----------------------------------------------------------------------------
+# Large static resources
+# **/staticresources/*.resource
+
+# Document files
+# **/documents/**
+
+# -----------------------------------------------------------------------------
+# Environment-Specific Configuration
+# -----------------------------------------------------------------------------
+# Apex email templates with org-specific IDs
+# **/email/**
+
+# Named credentials (contain org-specific endpoints)
+# **/namedCredentials/**
+
+# Remote site settings (org-specific URLs)
+# **/remoteSiteSettings/**
+
+# -----------------------------------------------------------------------------
+# Deployment Artifacts
+# -----------------------------------------------------------------------------
+# Coverage reports
+**/coverage/**
+
+# Build artifacts
+**/dist/**
+**/build/**
+
+# Node modules (should never be deployed)
+**/node_modules/**
+
+# Logs
+**/*.log
+**/logs/**
+
+# -----------------------------------------------------------------------------
+# OS-Specific Files
+# -----------------------------------------------------------------------------
+# macOS
+**/.DS_Store
+**/.AppleDouble
+**/.LSOverride
+
+# Windows
+**/Thumbs.db
+**/ehthumbs.db
+**/Desktop.ini
+
+# Linux
+**/*~
+
+# -----------------------------------------------------------------------------
+# Temporary Files
+# -----------------------------------------------------------------------------
+**/*.tmp
+**/*.temp
+**/*.bak
+**/*.swp
+**/*.swo
+
+# -----------------------------------------------------------------------------
+# Documentation (not deployable)
+# -----------------------------------------------------------------------------
+**/docs/**
+**/documentation/**
+README.md
+CHANGELOG.md
+CONTRIBUTING.md
+LICENSE
+
+# -----------------------------------------------------------------------------
+# CI/CD Configuration (not deployable)
+# -----------------------------------------------------------------------------
+**/.github/**
+**/.gitlab-ci.yml
+**/.circleci/**
+**/Jenkinsfile
+**/.travis.yml
+**/azure-pipelines.yml
+**/bitbucket-pipelines.yml
